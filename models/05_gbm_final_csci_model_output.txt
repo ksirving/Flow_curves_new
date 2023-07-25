@@ -1,0 +1,95 @@
+
+ 
+ GBM STEP - version 2.9 
+ 
+Performing cross-validation optimisation of a boosted regression tree model 
+for csci and using a family of gaussian 
+Using 427 observations and 16 predictors 
+creating 10 initial models of 100 trees 
+
+ folds are unstratified 
+total mean deviance =  0.0531 
+tolerance is fixed at  1e-04 
+ntrees resid. dev. 
+100    0.0406 
+now adding trees... 
+200   0.0357 
+300   0.0338 
+400   0.033 
+500   0.0328 
+600   0.0328 
+700   0.0329 
+800   0.0331 
+900   0.0332 
+1000   0.0333 
+1100   0.0335 
+1200   0.0336 
+1300   0.0337 
+1400   0.0338 
+1500   0.034 
+1600   0.0341 
+1700   0.0342 
+1800   0.0344 
+1900   0.0345 
+2000   0.0346 
+
+mean total deviance = 0.053 
+mean residual deviance = 0.023 
+ 
+estimated cv deviance = 0.033 ; se = 0.002 
+ 
+training data correlation = 0.767 
+cv correlation =  0.616 ; se = 0.041 
+ 
+elapsed time -  0.16 minutes 
+
+Best parameters for GBM.STEP:
+
+
+ 
+ GBM STEP - version 2.9 
+ 
+Performing cross-validation optimisation of a boosted regression tree model 
+for csci and using a family of gaussian 
+Using 420 observations and 16 predictors 
+creating 10 initial models of 100 trees 
+
+ folds are unstratified 
+total mean deviance =  0.0529 
+tolerance is fixed at  1e-04 
+ntrees resid. dev. 
+100    0.0404 
+now adding trees... 
+200   0.0358 
+300   0.0341 
+400   0.0334 
+500   0.0333 
+600   0.0333 
+700   0.0334 
+800   0.0335 
+900   0.0336 
+1000   0.0338 
+1100   0.0338 
+1200   0.034 
+1300   0.0341 
+1400   0.0342 
+1500   0.0343 
+1600   0.0345 
+1700   0.0346 
+1800   0.0346 
+1900   0.0347 
+2000   0.0348 
+2100   0.0348 
+
+mean total deviance = 0.053 
+mean residual deviance = 0.023 
+ 
+estimated cv deviance = 0.033 ; se = 0.001 
+ 
+training data correlation = 0.775 
+cv correlation =  0.61 ; se = 0.04 
+ 
+elapsed time -  0.15 minutes 
+
+Best parameters for GBM.STEP:
+

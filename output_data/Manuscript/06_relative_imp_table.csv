@@ -1,0 +1,17 @@
+"","var","Flow.Metric.Name","Flow.Component","CSCI","ASCI"
+"1","DS_Dur_WS","Dry-season duration","Dry-season baseflow",4.58389087422104,5.56583645702969
+"2","DS_Mag_50","Dry-season median baseflow","Dry-season baseflow",5.28772007768503,2.01465907308168
+"3","DS_Mag_90","Dry-season high baseflow","Dry-season baseflow",0.904243060887974,4.23471270724208
+"4","DS_Tim","Dry-season timing","Dry-season baseflow",3.58010692656005,2.63819054522163
+"5","FA_Dur","Fall pulse duration","Fall pulse flow",0.297254436321829,0
+"6","FA_Mag","Fall pulse magnitude","Fall pulse flow",1.72085857060444,0.0940818661616188
+"7","FA_Tim","Fall pulse timing","Fall pulse flow",0.222942924190692,0.00749138804382802
+"8","Q99","Magnitude of largest annual storm","Peak Flow",51.4595138354157,55.1586039185425
+"9","SP_Dur","Spring duration","Spring recession flow",3.15470002037876,5.33841406314414
+"10","SP_Mag","Spring recession magnitude","Spring recession flow",3.01093421687499,9.44581916913878
+"11","SP_ROC","Spring rate of change","Spring recession flow",3.17214285140116,2.15663671348908
+"12","SP_Tim","Spring timing","Spring recession flow",5.47858539824363,1.2050168432869
+"13","Wet_BFL_Dur","Wet-season duration","Wet-season baseflow",11.9512864974777,2.66989177501007
+"14","Wet_BFL_Mag_10","Wet-season low baseflow","Wet-season baseflow",0.717242133031676,2.07863122900171
+"15","Wet_BFL_Mag_50","Wet-season median baseflow","Wet-season baseflow",3.05023180939441,3.17542309474657
+"16","Wet_Tim","Wet-season timing","Wet-season baseflow",1.40834636731089,4.21659115685974

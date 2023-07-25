@@ -1,0 +1,105 @@
+
+ 
+ GBM STEP - version 2.9 
+ 
+Performing cross-validation optimisation of a boosted regression tree model 
+for H_ASCI and using a family of gaussian 
+Using 360 observations and 16 predictors 
+creating 10 initial models of 100 trees 
+
+ folds are unstratified 
+total mean deviance =  0.0557 
+tolerance is fixed at  1e-04 
+ntrees resid. dev. 
+100    0.0448 
+now adding trees... 
+200   0.0407 
+300   0.0394 
+400   0.0392 
+500   0.0393 
+600   0.0397 
+700   0.04 
+800   0.0404 
+900   0.0408 
+1000   0.0412 
+1100   0.0416 
+1200   0.0419 
+1300   0.0422 
+1400   0.0425 
+1500   0.0427 
+1600   0.0429 
+1700   0.0431 
+1800   0.0434 
+1900   0.0436 
+2000   0.0438 
+
+mean total deviance = 0.056 
+mean residual deviance = 0.028 
+ 
+estimated cv deviance = 0.039 ; se = 0.002 
+ 
+training data correlation = 0.736 
+cv correlation =  0.56 ; se = 0.041 
+ 
+elapsed time -  0.14 minutes 
+
+Best parameters for GBM.STEP:
+
+
+ 
+ GBM STEP - version 2.9 
+ 
+Performing cross-validation optimisation of a boosted regression tree model 
+for H_ASCI and using a family of gaussian 
+Using 355 observations and 16 predictors 
+creating 10 initial models of 100 trees 
+
+ folds are unstratified 
+total mean deviance =  0.0553 
+tolerance is fixed at  1e-04 
+ntrees resid. dev. 
+100    0.0524 
+now adding trees... 
+200   0.0497 
+300   0.0475 
+400   0.0456 
+500   0.0442 
+600   0.043 
+700   0.042 
+800   0.0413 
+900   0.0406 
+1000   0.0401 
+1100   0.0397 
+1200   0.0394 
+1300   0.0391 
+1400   0.039 
+1500   0.0388 
+1600   0.0387 
+1700   0.0386 
+1800   0.0386 
+1900   0.0386 
+2000   0.0386 
+2100   0.0386 
+2200   0.0386 
+2300   0.0386 
+2400   0.0387 
+2500   0.0387 
+2600   0.0388 
+2700   0.0389 
+2800   0.0389 
+2900   0.039 
+3000   0.0391 
+3100   0.0391 
+
+mean total deviance = 0.055 
+mean residual deviance = 0.028 
+ 
+estimated cv deviance = 0.039 ; se = 0.002 
+ 
+training data correlation = 0.73 
+cv correlation =  0.562 ; se = 0.034 
+ 
+elapsed time -  0.23 minutes 
+
+Best parameters for GBM.STEP:
+

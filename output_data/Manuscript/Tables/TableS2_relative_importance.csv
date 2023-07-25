@@ -1,0 +1,17 @@
+,var,Flow.Metric.Name,Flow.Component,CSCI,ASCI
+8,Q99,Magnitude of largest annual storm,Peak Flow,51.46,55.16
+13,Wet_BFL_Dur,Wet-season duration,Wet-season baseflow,11.95,2.67
+12,SP_Tim,Spring timing,Spring recession flow,5.48,1.21
+2,DS_Mag_50,Dry-season median baseflow,Dry-season baseflow,5.29,2.01
+1,DS_Dur_WS,Dry-season duration,Dry-season baseflow,4.58,5.57
+4,DS_Tim,Dry-season timing,Dry-season baseflow,3.58,2.64
+11,SP_ROC,Spring rate of change,Spring recession flow,3.17,2.16
+9,SP_Dur,Spring duration,Spring recession flow,3.15,5.34
+15,Wet_BFL_Mag_50,Wet-season median baseflow,Wet-season baseflow,3.05,3.18
+10,SP_Mag,Spring recession magnitude,Spring recession flow,3.01,9.45
+6,FA_Mag,Fall pulse magnitude,Fall pulse flow,1.72,0.09
+16,Wet_Tim,Wet-season timing,Wet-season baseflow,1.41,4.22
+3,DS_Mag_90,Dry-season high baseflow,Dry-season baseflow,0.90,4.23
+14,Wet_BFL_Mag_10,Wet-season low baseflow,Wet-season baseflow,0.72,2.08
+5,FA_Dur,Fall pulse duration,Fall pulse flow,0.30,0.00
+7,FA_Tim,Fall pulse timing,Fall pulse flow,0.22,0.01
