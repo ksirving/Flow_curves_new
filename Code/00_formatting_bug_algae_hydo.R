@@ -43,65 +43,20 @@ dim(csci) ## 548
 csci<- csci[ !duplicated(csci[, c("stationcode")], fromLast=T),]
 dim(csci) ## 434
 
-## match sites
-
-csci_sites <- unique(csci$stationcode)
-soc_sites <- unique(soc$BugID)
-
-soc_sites %in% csci_sites
-sum(soc_sites %in% csci_sites) ## 434
+csci <- csci %>%
+  rename(masterid = stationcode)
 
 
 ## flow data
-dh_data <- read.csv("/Volumes/Biology/San Juan WQIP_KTQ/Data/Working/Regional_Curves_CSCI_ASCI_Annie/Data/Flow/subset_woutLARsitematches/DeltaH_FINAL/SoCal_bio_deltaH_summary_supp_final.csv")
+dh_data <- read.csv("Data/2023-07-20_RFpred_output_alldata_biositesCOMIDs_med_dlt_FFM_test12_test2.csv") %>%
+  select(-X)
+head(dh_data)
 
-## match sites to csci sites
-
-csci_sites <- unique(csci$stationcode)
-delta_sites <- unique(dh_data$site)
-
-## check number of matching sites
-delta_sites %in% csci_sites
-sum(delta_sites %in% csci_sites) # 427
-
-csci_sites %in% delta_sites
-sum(csci_sites %in% delta_sites) # 427
-
-### extract only csci sites in delta sites
-
-delta_csci <- subset(csci, stationcode %in% delta_sites)
-
-
-## format delta to columns
-## subset hydro data to only median for testing
-
-dh_median <- subset(dh_data, summary.statistic =="median")
-dim(dh_median) # 7236
-
-head(dh_median)
-
-### remove all sites with only one year delta
-
-dh_median <- filter(dh_median, !n_year == 1)
-
-## subset to only site, flow metric & delta H
-dh_medianx <- dh_median[,c(1,3,8)]
-
-## make wider
-dh_medianx <- dcast(dh_medianx, site~flow_metric) # 443 ( waiting for additional bio sites)
-
-## join with hydro data 
-
-names(dh_medianx)
-unique(dh_medianx$site) ## 529, 522
-
-all_dat_med <- merge(delta_csci, dh_medianx, by.x="stationcode", by.y="site")
-dim(all_dat_med) ## 420
-
-head(all_dat_med)
+csciFlow <- inner_join(csci, dh_data, by = c("masterid", "latitude", "longitude"))
+head(csciFlow)
 
 ## save - df to use in GLMs
-write.csv(all_dat_med, "output_data/00_csci_delta_formatted_median_updated_RF2023.csv")
+write.csv(csciFlow, "output_data/00_csci_delta_formatted_median_updated_RF2023.csv")
 
 
 # ASCI --------------------------------------------------------------------
@@ -152,7 +107,8 @@ algae3 <- algae3[ !duplicated(algae3[, c("StationCode", "Index")], fromLast=T),]
 algae4 <- algae3 %>% 
   select(-Replicate) %>%
   pivot_wider(id_cols=c(SampleID, SampleDate, StationCode), names_from = Index, values_from = Result) %>%
-  distinct(SampleDate, StationCode, .keep_all = T)
+  distinct(SampleDate, StationCode, .keep_all = T) %>%
+  rename(masterid = StationCode)
 
 dim(algae4) # 2324
 head(algae4)
@@ -160,69 +116,19 @@ head(algae4)
 ## save
 save(algae4, file= "output_data/00_SOC_all_asci_sites.RData")
 
-sum(is.na(algae4)) # 105
+sum(is.na(algae4)) # 2059
 
-## upload flow data
-dh_data <- read.csv("/Volumes/Biology/San Juan WQIP_KTQ/Data/Working/Regional_Curves_CSCI_ASCI_Annie/Data/Flow/subset_woutLARsitematches/DeltaH_FINAL/SoCal_bio_deltaH_summary_supp_final.csv")
+asciFlow <- inner_join(algae4, dh_data, by = c("masterid"))
+head(asciFlow)
 
-## match sites to asci sites
-
-asci_sites <- unique(algae4$StationCode)
-delta_sites <- unique(dh_data$site)
-
-delta_sites %in% asci_sites
-sum(delta_sites %in% asci_sites) # 329
-
-asci_sites %in% delta_sites
-sum(asci_sites %in% delta_sites) # 329
-
-### extract only asci sites in delta sites
-
-delta_asci <- subset(algae4, StationCode %in% delta_sites)
-dim(delta_asci) ## 329   5
-
-
-## remobve duplicates
-delta_asci <- delta_asci[ !duplicated(delta_asci[, c("StationCode")], fromLast=T),]
-
-## subset to median delta   
-dh_median <- subset(dh_data, summary.statistic =="median")
-
-### remove all sites with only one year delta
-
-dh_median <- filter(dh_median, !n_year == 1)
-unique(dh_median$site)
-
-## subset to only site, flow metric & delta H
-dh_medianx <- dh_median[,c(1,3,8)] ### 
-dh_medianx <- dcast(dh_medianx, site~flow_metric) # 
-
-
-## merge asci with delta H
-all_dat_med <- merge(delta_asci, dh_medianx, by.x="StationCode", by.y="site")
-dim(all_dat_med) ## 324, 356
-
-## save for GLMs
-
-write.csv(all_dat_med, "output_data/00_asci_delta_formatted_median_Nov2021.csv")
+## save - df to use in GLMs
+write.csv(asciFlow, "output_data/00_asci_delta_formatted_median_updated_RF2023.csv")
 
 ## total sites
 
-asci <- read.csv("output_data/00_asci_delta_formatted_median_Nov2021.csv")
-csci <- read.csv("output_data/00_csci_delta_formatted_median_updated_Nov2021.csv")
-names(csci)
-asci <- asci %>%
-  select(StationCode)
+length(unique(asciFlow$masterid)) ## 351
+length(unique(csciFlow$masterid)) ## 353
 
-csci <- csci %>%
-  select(stationcode)
+length(unique(asciFlow$comid)) ## 286
+length(unique(csciFlow$comid)) ## 286
 
-csci <- csci %>%
-  mutate(StationCode = stationcode) %>%
-  select(StationCode)
-
-all_sites <- rbind(asci, csci)
-
-dim(all_sites) # 744
- 
-length(unique(all_sites$StationCode)) ## 480

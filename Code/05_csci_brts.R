@@ -1,5 +1,6 @@
 ### CSCI brts
-
+install.packages("gbm")
+# install.packages("dismo")
 library(gbm)
 library(dismo)
 library(ggplot2)
@@ -14,9 +15,8 @@ source("code/functions/My.gbm.step.R")
 
 ## upload data
 
-data <- read.csv("output_data/00_csci_delta_formatted_median_updated_Nov2021.csv")
-head(data)
-## remove peak timing
+data <- read.csv("output_data/00_csci_delta_formatted_median_updated_RF2023.csv")
+
 names(data)
 data <- data[,-c(1)]
 
@@ -41,7 +41,7 @@ gbm_fit_step <- function(
   set.seed(123) # make it reproducible
   m_step <- My.gbm.step(
     gbm.y = 6, # response in training data
-    gbm.x = 9:24, # hydro dat
+    gbm.x = 10:18, # hydro dat
     family = "gaussian",
     data = data,
     #max.trees = 8000, # can specify but don't for now
@@ -90,7 +90,7 @@ gbm_final_step <- function(
   set.seed(123) # make it reproducible
   m_final <- My.gbm.step(
     gbm.y = 6, # response in training data
-    gbm.x = 9:24, # hydro dat
+    gbm.x = 10:18, # hydro dat
     family = "gaussian",
     data = data,
     learning.rate = shrinkage,
@@ -185,12 +185,24 @@ labels[25, 2] <- "Q99"
 labels[25, 3] <- "Peak Flow"
 labels
 
+
+labels <- labels %>%
+  mutate(hydro.endpoints = case_when(hydro.endpoints == "DS_Mag_50" ~ "d_ds_mag_50",
+                                     hydro.endpoints == "FA_Mag" ~ "d_fa_mag",
+                                     hydro.endpoints == "Peak_10" ~ "d_peak_10",
+                                     hydro.endpoints == "Peak_2" ~ "d_peak_2",
+                                     hydro.endpoints == "Peak_5" ~ "d_peak_5",
+                                     hydro.endpoints == "SP_Mag" ~ "d_sp_mag",
+                                     hydro.endpoints == "Wet_BFL_Mag_10" ~ "d_wet_bfl_mag_10",
+                                     hydro.endpoints == "Wet_BFL_Mag_50" ~ "d_wet_bfl_mag_50",
+                                     hydro.endpoints == "Q99" ~ "delta_q99"))
+
 gbm_fin_RI <- left_join(gbm_fin_RI, labels, by ="var")
 
 write.csv(gbm_fin_RI, "models/05_rel_imp_csci_labels.csv")
 
 
-ggplot(data=gbm_fin_RI, aes(x=reorder(Flow.Metric.Name,-rel.inf), y=rel.inf, fill = Flow.Component)) +
+ggplot(data=gbm_fin_RI, aes(x=reorder(var,-rel.inf), y=rel.inf, fill = Flow.Component)) +
   geom_bar(stat="identity") +
   theme(text = element_text(size=15), axis.text.x = element_text(angle = 75, vjust = 1, hjust=1))+
   # scale_x_continuous(limits = c(0, 35)) +

@@ -15,17 +15,18 @@ library(tidyr)
 ## thresholds - 0.75, 0.86, 0.94
 
 ## upload asci data
-asci<-read.csv("output_data/00_asci_delta_formatted_median_Nov2021.csv")
+asci<-read.csv("output_data/00_asci_delta_formatted_median_updated_RF2023.csv")
 head(asci)
 dim(asci)
 asci <- asci[, -c(1)]
 
+names(asci)
 ## bio 
 
 biol.endpoints<-c("H_ASCI","D_ASCI")#
 
 ## hydro
-hydro.endpoints<- colnames(asci)[6:21]
+hydro.endpoints<- colnames(asci)[9:17]
 
 ## thresholds
 
@@ -34,7 +35,7 @@ thresholds <- c(0.75, 0.86, 0.94) ## hybrid and diatom are the same
 bio_h_summary<-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
 bio_h_summary
 
-write.csv(bio_h_summary, "output_data/01_asci_hydro_endpoints_order_April2021.csv")
+write.csv(bio_h_summary, "output_data/01_asci_hydro_endpoints_order_July2023.csv")
 i=1
 neg.glm<-lapply(1:nrow(bio_h_summary), function(i)
 {
@@ -55,7 +56,7 @@ neg.glm<-lapply(1:nrow(bio_h_summary), function(i)
   
   
 })
-save(neg.glm, file="models/01a_ASCI_negative_GLM_all_delta_mets_April2021.RData")
+save(neg.glm, file="models/01a_ASCI_negative_GLM_all_delta_mets_July2023.RData")
 length(neg.glm)
 data <- NULL
 
@@ -116,7 +117,7 @@ pos.glm<-lapply(1:nrow(bio_h_summary), function(i)
   
 })
 
-save(pos.glm, file="models/01a_ASCI_positive_GLM_all_delta_mets_April2021.RData")
+save(pos.glm, file="models/01a_ASCI_positive_GLM_all_delta_mets_July2023.RData")
 
 data <- NULL
 data <- as.data.frame(data)
@@ -159,11 +160,11 @@ for(i in 1: length(code)) {
 
 data_pos <- data
 
-
+dim(bio_h_summary)
 ##### glm coeficients
 library(rcompanion)
 
-coefs <- data.frame(matrix(ncol=11, nrow=96))
+coefs <- data.frame(matrix(ncol=11, nrow=54))
 colnames(coefs) <- c("InterceptCoef", "VariableCoef", "Deviance", "AIC", "NullDeviance",
                      "InterceptPvalue", "VariablePvalue", "Delta", "McFadden", "Nagelkerke", "n")
 
@@ -191,7 +192,7 @@ ascinegcoefs <- cbind(bio_h_summary, coefs)
 
 ## positive
 
-coefs <- data.frame(matrix(ncol=11, nrow=96))
+coefs <- data.frame(matrix(ncol=11, nrow=54))
 colnames(coefs) <- c("InterceptCoef", "VariableCoef", "Deviance", "AIC", "NullDeviance",
                      "InterceptPvalue", "VariablePvalue", "Delta", "McFadden", "Nagelkerke", "n")
 
@@ -312,11 +313,11 @@ head(all_data)
 all_data$thresholds <- as.factor(all_data$thresholds)
 
 # save - df for BRTs
-write.csv(all_data, "output_data/01_algae_all_data_neg_pos_logR_metrics_figures_April2021.csv")
+write.csv(all_data, "output_data/01_algae_all_data_neg_pos_logR_metrics_figures_July2023.csv")
 
 ### CSCI endpoint only
 all_data_csci <- subset(all_data,biol.endpoints=="H_ASCI")
 head(all_data_csci)
-write.csv(all_data_csci, "output_data/01_h_asci_neg_pos_logR_metrics_figures_April2021.csv")
+write.csv(all_data_csci, "output_data/01_h_asci_neg_pos_logR_metrics_figures_July2023.csv")
 
 str(bio_h_summary_neg)

@@ -17,11 +17,21 @@ labels[25, 3] <- "Peak Flow"
 labels
 
 
-
+labels <- labels %>%
+  mutate(hydro.endpoints = case_when(hydro.endpoints == "DS_Mag_50" ~ "d_ds_mag_50",
+                                    hydro.endpoints == "FA_Mag" ~ "d_fa_mag",
+                                    hydro.endpoints == "Peak_10" ~ "d_peak_10",
+                                    hydro.endpoints == "Peak_2" ~ "d_peak_2",
+                                    hydro.endpoints == "Peak_5" ~ "d_peak_5",
+                                    hydro.endpoints == "SP_Mag" ~ "d_sp_mag",
+                                    hydro.endpoints == "Wet_BFL_Mag_10" ~ "d_wet_bfl_mag_10",
+                                    hydro.endpoints == "Wet_BFL_Mag_50" ~ "d_wet_bfl_mag_50",
+                                    hydro.endpoints == "Q99" ~ "delta_q99"))
+unique(all_asci$hydro.endpoints)
 # data ASCI ---------------------------------------------------------------
 
 ## upload data
-all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_April2021.csv")
+all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_July2023.csv")
 
 ## scale probability
 all_asci <- all_asci %>%
@@ -38,7 +48,7 @@ head(all_asci)
 # data CSCI ---------------------------------------------------------------
 
 ## upload data
-all_csci <- read.csv("output_data/01_CSCI_neg_pos_logR_metrics_figures_April2021.csv")
+all_csci <- read.csv("output_data/01_CSCI_neg_pos_logR_metrics_figures_July2023.csv")
 
 ## scale probability
 all_csci <- all_csci %>%
