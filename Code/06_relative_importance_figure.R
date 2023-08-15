@@ -18,7 +18,7 @@ gbm_fin_RI <- rbind(gbm_fin_RI_csci, gbm_fin_RI_asci)
 gbm_fin_RI
 
 
-c1 <- ggplot(data=gbm_fin_RI, aes(x=reorder(var,-rel.inf), y=rel.inf, fill = Flow.Component)) +
+c1 <- ggplot(data=gbm_fin_RI, aes(x=reorder(Flow.Metric.Name,-rel.inf), y=rel.inf, fill = Flow.Component)) +
   geom_bar(stat="identity") +
   theme(text = element_text(size=10), axis.text.x = element_text(angle = 75, vjust = 1, hjust=1))+
   # scale_x_continuous(limits = c(0, 35)) +

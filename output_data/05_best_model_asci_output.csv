@@ -1,2 +1,2 @@
 "","shrinkage","interaction.depth","n.minobsinnode","bag.fraction","dev_explained"
-"1",0.001,5,10,0.75,0.302445935708538
+"1",0.005,5,5,0.75,0.291073678022769

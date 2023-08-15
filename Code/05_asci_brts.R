@@ -15,8 +15,8 @@ set.seed(321) # reproducibility
 
 ## upload data
 
-data <- read.csv("output_data/00_asci_delta_formatted_median_Nov2021.csv")
-
+data <- read.csv("output_data/00_asci_delta_formatted_median_updated_RF2023.csv")
+head(data)
 ## remove X column
 data <- data[,-c(1)]
 
@@ -47,7 +47,7 @@ gbm_fit_step <- function(
   set.seed(123) # make it reproducible
   m_step <- My.gbm.step(
     gbm.y = 4, # response in training data
-    gbm.x = 5:20, # hydro dat
+    gbm.x = 8:16, # hydro dat
     family = "gaussian",
     data = data,
     #max.trees = 8000, # can specify but don't for now
@@ -96,7 +96,7 @@ gbm_final_step <- function(
   set.seed(123) # make it reproducible
   m_final <- My.gbm.step(
     gbm.y = 4, # response in training data
-    gbm.x = 5:20, # hydro dat
+    gbm.x = 8:16, # hydro dat
     family = "gaussian",
     data = data,
     learning.rate = shrinkage,
@@ -135,7 +135,7 @@ write.csv(hyper_best, "output_data/05_best_model_asci_output.csv")
 
 # % percent explained
 (gbm_fin_out$self.statistics$mean.null - gbm_fin_out$cv.statistics$deviance.mean) / gbm_fin_out$self.statistics$mean.null 
-# 0.3024459
+# 0.2910737
 
 
 # 10. SAVE FINAL GBM AND DATA ---------------------------------------------------------------
@@ -158,7 +158,16 @@ class(gbm_final)
 gbm_fin_RI<-as.data.frame(summary(gbm_final, plotit = F, method=relative.influence)) 
 gbm_fin_RI  
 
-
+#                             var   rel.inf
+# d_peak_2                 d_peak_2 29.335812
+# d_fa_mag                 d_fa_mag 10.342910
+# d_sp_mag                 d_sp_mag  9.880985
+# d_wet_bfl_mag_50 d_wet_bfl_mag_50  9.849694
+# d_peak_10               d_peak_10  9.540287
+# d_ds_mag_50           d_ds_mag_50  9.189583
+# delta_q99               delta_q99  8.288195
+# d_peak_5                 d_peak_5  6.977112
+# d_wet_bfl_mag_10 d_wet_bfl_mag_10  6.595423
 
 # Plots and metrics-------------------------------------------------------------------
 
@@ -166,14 +175,27 @@ gbm_fin_RI
 
 labels <- read.csv("Data/ffm_names.csv")
 labels <- labels[1:24, ]
-labels <- labels %>% rename(var = Flow.Metric.Code)
+labels
+labels <- labels %>% rename(hydro.endpoints = Flow.Metric.Code)
 labels[25, 1] <- "Magnitude of largest annual storm"
 labels[25, 2] <- "Q99"
-labels[25, 3] <- "Peak Flow"
+labels[25, 3] <- "Peak flow"
 labels
+
+labels <- labels %>%
+  mutate(var = case_when(hydro.endpoints == "DS_Mag_50" ~ "d_ds_mag_50",
+                         hydro.endpoints == "FA_Mag" ~ "d_fa_mag",
+                         hydro.endpoints == "Peak_10" ~ "d_peak_10",
+                         hydro.endpoints == "Peak_2" ~ "d_peak_2",
+                         hydro.endpoints == "Peak_5" ~ "d_peak_5",
+                         hydro.endpoints == "SP_Mag" ~ "d_sp_mag",
+                         hydro.endpoints == "Wet_BFL_Mag_10" ~ "d_wet_bfl_mag_10",
+                         hydro.endpoints == "Wet_BFL_Mag_50" ~ "d_wet_bfl_mag_50",
+                         hydro.endpoints == "Q99" ~ "delta_q99")) 
 
 ## combine with rel importance
 gbm_fin_RI <- left_join(gbm_fin_RI, labels, by ="var")
+gbm_fin_RI
 
 write.csv(gbm_fin_RI, "models/05_rel_imp_asci_labels.csv")
 gbm_fin_RI <- read.csv("models/05_rel_imp_asci_labels.csv")

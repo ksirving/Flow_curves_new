@@ -129,7 +129,7 @@ write.csv(hyper_best, "output_data/05_best_model_csci_output.csv")
 
 # % percent explained
 (gbm_fin_out$self.statistics$mean.null - gbm_fin_out$cv.statistics$deviance.mean) / gbm_fin_out$self.statistics$mean.null 
-# 0.370678
+# 0.3610494
 
 
 # 10. SAVE FINAL GBM AND DATA ---------------------------------------------------------------
@@ -153,23 +153,17 @@ gbm_fin_RI<-as.data.frame(summary(gbm_final, plotit = F, method=relative.influen
 gbm_fin_RI  
 
 
-# var    rel.inf
-# Q99                       Q99 51.4595138
-# Wet_BFL_Dur       Wet_BFL_Dur 11.9512865
-# SP_Tim                 SP_Tim  5.4785854
-# DS_Mag_50           DS_Mag_50  5.2877201
-# DS_Dur_WS           DS_Dur_WS  4.5838909
-# DS_Tim                 DS_Tim  3.5801069
-# SP_ROC                 SP_ROC  3.1721429
-# SP_Dur                 SP_Dur  3.1547000
-# Wet_BFL_Mag_50 Wet_BFL_Mag_50  3.0502318
-# SP_Mag                 SP_Mag  3.0109342
-# FA_Mag                 FA_Mag  1.7208586
-# Wet_Tim               Wet_Tim  1.4083464
-# DS_Mag_90           DS_Mag_90  0.9042431
-# Wet_BFL_Mag_10 Wet_BFL_Mag_10  0.7172421
-# FA_Dur                 FA_Dur  0.2972544
-# FA_Tim                 FA_Tim  0.2229429
+
+# var   rel.inf
+# d_ds_mag_50           d_ds_mag_50 20.985417
+# d_peak_10               d_peak_10 20.103600
+# d_fa_mag                 d_fa_mag 13.967858
+# d_sp_mag                 d_sp_mag 11.970583
+# delta_q99               delta_q99  7.944227
+# d_wet_bfl_mag_50 d_wet_bfl_mag_50  7.021684
+# d_peak_5                 d_peak_5  6.766802
+# d_peak_2                 d_peak_2  6.640653
+# d_wet_bfl_mag_10 d_wet_bfl_mag_10  4.599176
 
 
 # Plots and metrics-------------------------------------------------------------------
@@ -179,15 +173,15 @@ gbm_fin_RI
 labels <- read.csv("Data/ffm_names.csv")
 labels <- labels[1:24, ]
 labels
-labels <- labels %>% rename(var = Flow.Metric.Code)
+labels <- labels %>% rename(hydro.endpoints = Flow.Metric.Code)
 labels[25, 1] <- "Magnitude of largest annual storm"
 labels[25, 2] <- "Q99"
-labels[25, 3] <- "Peak Flow"
+labels[25, 3] <- "Peak flow"
 labels
 
 
 labels <- labels %>%
-  mutate(hydro.endpoints = case_when(hydro.endpoints == "DS_Mag_50" ~ "d_ds_mag_50",
+  mutate(var = case_when(hydro.endpoints == "DS_Mag_50" ~ "d_ds_mag_50",
                                      hydro.endpoints == "FA_Mag" ~ "d_fa_mag",
                                      hydro.endpoints == "Peak_10" ~ "d_peak_10",
                                      hydro.endpoints == "Peak_2" ~ "d_peak_2",
@@ -195,14 +189,14 @@ labels <- labels %>%
                                      hydro.endpoints == "SP_Mag" ~ "d_sp_mag",
                                      hydro.endpoints == "Wet_BFL_Mag_10" ~ "d_wet_bfl_mag_10",
                                      hydro.endpoints == "Wet_BFL_Mag_50" ~ "d_wet_bfl_mag_50",
-                                     hydro.endpoints == "Q99" ~ "delta_q99"))
-
+                                     hydro.endpoints == "Q99" ~ "delta_q99")) 
+gbm_fin_RI
 gbm_fin_RI <- left_join(gbm_fin_RI, labels, by ="var")
 
 write.csv(gbm_fin_RI, "models/05_rel_imp_csci_labels.csv")
 
 
-ggplot(data=gbm_fin_RI, aes(x=reorder(var,-rel.inf), y=rel.inf, fill = Flow.Component)) +
+ggplot(data=gbm_fin_RI, aes(x=reorder(Flow.Metric.Name,-rel.inf), y=rel.inf, fill = Flow.Component)) +
   geom_bar(stat="identity") +
   theme(text = element_text(size=15), axis.text.x = element_text(angle = 75, vjust = 1, hjust=1))+
   # scale_x_continuous(limits = c(0, 35)) +
