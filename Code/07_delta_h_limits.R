@@ -20,7 +20,7 @@ labels
 # ASCI --------------------------------------------------------------------
 
 ## upload data
-all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_April2021.csv")
+all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_April2021.csv") ## change data here!!!
 
 ## scale probability
 all_asci <- all_asci %>%
