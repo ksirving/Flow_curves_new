@@ -23,18 +23,23 @@ library(rgdal)
 
 
 ### read in look up table of FFMs and thresholds 
-lookup_table <- read_csv("output_data/01_ALL_delta_thresholds_scaled.csv") 
+lookup_table <- read_csv("output_data/Manuscript/07_ALL_delta_thresholds_scaled_updated.csv") %>% 
+  mutate(metric = paste(Bio_endpoint, "_", Hydro_endpoint, "_", Bio_threshold, "_", Type, sep = "")) #edited by Rachel 9/7
 
 ### read in current predicted probabilities - data set with all mag metrics in one df
-current_predicted_prob <- read_csv("output_data/07a_predicted_probability.csv") 
+current_predicted_prob <- read_csv("output_data/Manuscript/07b_predicted_probability.csv") 
 
 ############################################################################################################################################
 # filter look up table for what we want and reformat it 
 
 lookuptable <- lookup_table %>%
-  filter(metric == "H_ASCI_Q99_0.86_Positive" | metric == "H_ASCI_Q99_0.86_Negative" | metric == "H_ASCI_DS_Mag_50_0.86_Positive"
-         | metric == "H_ASCI_DS_Mag_50_0.86_Negative" | metric == "CSCI_Q99_0.79_Positive" | metric == "CSCI_Q99_0.79_Negative" 
-         | metric == "CSCI_Wet_BFL_Mag_10_0.79_Positive" | metric == "CSCI_Wet_BFL_Mag_10_0.79_Negative") %>%
+  # filter(metric == "H_ASCI_Q99_0.86_Positive" | metric == "H_ASCI_Q99_0.86_Negative" | metric == "H_ASCI_DS_Mag_50_0.86_Positive"
+  #        | metric == "H_ASCI_DS_Mag_50_0.86_Negative" | metric == "CSCI_Q99_0.79_Positive" | metric == "CSCI_Q99_0.79_Negative" 
+  #        | metric == "CSCI_Wet_BFL_Mag_10_0.79_Positive" | metric == "CSCI_Wet_BFL_Mag_10_0.79_Negative") %>%
+  filter(metric %in% c("H_ASCI_Peak_2_0.86_Positive", "H_ASCI_Peak_2_0.86_Negative", "H_ASCI_SP_Mag_0.86_Positive", "H_ASCI_SP_Mag_0.86_Negative", 
+                       "H_ASCI_Wet_BFL_Mag_50_0.86_Positive", "H_ASCI_Wet_BFL_Mag_50_0.86_Negative", "H_ASCI_DS_Mag_50_0.86_Positive", "H_ASCI_DS_Mag_50_0.86_Negative", 
+                       "CSCI_DS_Mag_50_0.79_Positive", "CSCI_DS_Mag_50_0.79_Negative", "CSCI_Peak_10_0.79_Positive", "CSCI_Peak_10_0.79_Negative", 
+                       "CSCI_FA_Mag_0.79_Positive", "CSCI_FA_Mag_0.79_Negative", "CSCI_Wet_BFL_Mag_50_0.79_Positive", "CSCI_Wet_BFL_Mag_50_0.79_Negative")) %>% 
   dplyr::select(-c(...1, X, Bio_endpoint, n, metric)) %>%
   pivot_longer(Threshold70:Threshold99, names_to = "Threshold", values_to = "value") %>%
   group_by(Hydro_endpoint, Threshold) %>%
@@ -85,11 +90,12 @@ final_dfv2 <- proximity_df %>%
 # Shp file for 2nd deliverable  -------------------------------------------
 # Based off data above 
 
-# reading in needed file for this sections 
+# reading in needed file for this section
 # arroyo_toad <- read.csv("input_data/08_Arroyo_Toad_Prob_Occurrence_RB9.csv") # old csv
 arroyo_toad <- read.csv("input_data/NHD_Toads_prob.csv")
 
-relative_alteration <- read.csv("input_data/08_Relative_Alteration_FFM_RB9.csv")
+relative_alteration <- read.csv("input_data/08_Relative_Alteration_FFM_RB9.csv") # leaving this naming since this is a sheet Kris gave me
+
 
 
 ### DATAFRAME 1
@@ -140,15 +146,16 @@ final_df.2 <- relalt_csciasci %>%
   dplyr::select(-c(index))
 
 # this df was made to fix issues with duplicate csci/asci relative alteration values for q99 - joined later in "deliverable_df3" 
-q99_df <- relalt_csciasci %>%
-  left_join(arroyo_mean, by = "COMID")  %>%
-  dplyr::select(-c(DeltaFFM, Bio_threshold, Negative, Positive, FullMetricName, Classification, Prox_Positive, Prox_Negative, Threshold)) %>%
-  dplyr::rename(Probability_Threshold = probs) %>%
-  mutate(IndexMetric = paste(index, Hydro_endpoint, sep= "_")) %>%
-  dplyr::select(c(COMID, Probability_Threshold, Hydro_endpoint, Relative_Alteration)) %>%
-  filter(Hydro_endpoint == "q99") %>%
-  distinct() %>%
-  pivot_wider(names_from = Hydro_endpoint, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_")
+#### EDIT 9/7 by Rachel - this was a problem from the last run of data
+# q99_df <- relalt_csciasci %>%
+#   left_join(arroyo_mean, by = "COMID")  %>%
+#   dplyr::select(-c(DeltaFFM, Bio_threshold, Negative, Positive, FullMetricName, Classification, Prox_Positive, Prox_Negative, Threshold)) %>%
+#   dplyr::rename(Probability_Threshold = probs) %>%
+#   mutate(IndexMetric = paste(index, Hydro_endpoint, sep= "_")) %>%
+#   dplyr::select(c(COMID, Probability_Threshold, Hydro_endpoint, Relative_Alteration)) %>%
+#   # filter(Hydro_endpoint == "q99") %>%
+#   distinct() %>%
+#   pivot_wider(names_from = Hydro_endpoint, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_")
 
 # re-ordering columns for visualizing - getting closer to final product
 new_order = c("COMID", "Relative_Alteration", "PredictedProbabilityScaled", "IndexMetric", "ThreshIndexCode", "MeanProbToad", "Probability_Threshold", 
@@ -169,11 +176,21 @@ deliverable_df2 <- final_df %>%
 
 # had to do a work around to get unique values for q99 (had to make new df for this which is the "q99_df" from above)
 # doing a join with q99 df to fix problem of duplicates in q99 column - cleaned 
-deliverable_df3 <- final_df.2 %>%
-  dplyr::select(-c(SatisfiedProbability,  MeanProbToad, ThreshIndexCode, Results, PredictedProbabilityScaled, ThreshIndexCode, IndexMetric)) %>%
-  filter(Hydro_endpoint != "q99") %>%
-  pivot_wider(names_from = Hydro_endpoint, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_") %>%
-  left_join(q99_df, by = c("COMID", "Probability_Threshold"))
+# deliverable_df3 <- final_df.2 %>%
+#   dplyr::select(-c(SatisfiedProbability,  MeanProbToad, ThreshIndexCode, Results, PredictedProbabilityScaled, ThreshIndexCode, IndexMetric)) %>%
+#   # filter(Hydro_endpoint != "q99") %>%
+#   # pivot_wider(names_from = Hydro_endpoint, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_") #%>%
+#   left_join(q99_df, by = c("COMID", "Probability_Threshold"))
+
+deliverable_df3 <- relalt_csciasci %>%
+  left_join(arroyo_mean, by = "COMID")  %>%
+  dplyr::select(-c(DeltaFFM, Bio_threshold, Negative, Positive, FullMetricName, Classification, Prox_Positive, Prox_Negative, Threshold)) %>%
+  dplyr::rename(Probability_Threshold = probs) %>%
+  mutate(IndexMetric = paste(index, Hydro_endpoint, sep= "_")) %>%
+  dplyr::select(c(COMID, Probability_Threshold, Hydro_endpoint, Relative_Alteration)) %>%
+  # filter(Hydro_endpoint == "q99") %>%
+  distinct() %>%
+  pivot_wider(names_from = Hydro_endpoint, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_")
 
 deliverable_df4 <- final_df %>%
   dplyr::select(c(COMID, MeanProbToad, Probability_Threshold))  
@@ -185,42 +202,57 @@ final_product <- deliverable_df1 %>%
   left_join(deliverable_df4, by = c("COMID", "Probability_Threshold")) %>%
   distinct() %>%
   dplyr::rename(`IV.Prob_Toad_Mean` = MeanProbToad, `I.COMID` = COMID, `III.Probability_Threshold` = Probability_Threshold) %>%
-  mutate(`IV.Prob_ASCI_q99` = round(`IV.Prob_ASCI_q99`, digits = 2), `IV.Prob_ASCI_ds_mag_50` = round(`IV.Prob_ASCI_ds_mag_50`, digits = 2), 
-         `IV.Prob_CSCI_q99` = round(`IV.Prob_CSCI_q99`, digits = 2), `IV.Prob_CSCI_wet_bfl_mag_10` = round(`IV.Prob_CSCI_wet_bfl_mag_10`, digits = 2), 
+  mutate(`IV.Prob_ASCI_ds_mag_50` = round(`IV.Prob_ASCI_ds_mag_50`, digits = 2), 
+         `IV.Prob_ASCI_peak_2` = round(`IV.Prob_ASCI_peak_2`, digits = 2), 
+         `IV.Prob_ASCI_sp_mag` = round(`IV.Prob_ASCI_sp_mag`, digits = 2), 
+         `IV.Prob_ASCI_wet_bfl_mag_50` = round(`IV.Prob_ASCI_wet_bfl_mag_50`, digits = 2), 
+         `IV.Prob_CSCI_ds_mag_50` = round(`IV.Prob_CSCI_ds_mag_50`, digits = 2), 
+         `IV.Prob_CSCI_fa_mag` = round(`IV.Prob_CSCI_fa_mag`, digits = 2), 
+         `IV.Prob_CSCI_peak_10` = round(`IV.Prob_CSCI_peak_10`, digits = 2), 
+         `IV.Prob_CSCI_wet_bfl_mag_50` = round(`IV.Prob_CSCI_wet_bfl_mag_50`, digits = 2), 
          `IV.Prob_Toad_Mean` = round(`IV.Prob_Toad_Mean`, digits = 2))
 
 # the final order for the deliverable 
-new_order = c("I.COMID", "II.Rel_Alt_q99", "II.Rel_Alt_ds_mag_50", "II.Rel_Alt_wet_bfl_mag_10", "III.Probability_Threshold",  
-              "IV.Prob_ASCI_q99", "IV.Prob_ASCI_ds_mag_50", "IV.Prob_CSCI_q99", "IV.Prob_CSCI_wet_bfl_mag_10", "IV.Prob_Toad_Mean", 
-              "V.Result_ASCI_q99", "V.Result_ASCI_ds_mag_50", "V.Result_CSCI_q99", "V.Result_CSCI_wet_bfl_mag_10")
+# new_order = c("I.COMID", "II.Rel_Alt_q99", "II.Rel_Alt_ds_mag_50", "II.Rel_Alt_wet_bfl_mag_10", "III.Probability_Threshold",  
+#               "IV.Prob_ASCI_q99", "IV.Prob_ASCI_ds_mag_50", "IV.Prob_CSCI_q99", "IV.Prob_CSCI_wet_bfl_mag_10", "IV.Prob_Toad_Mean", 
+#               "V.Result_ASCI_q99", "V.Result_ASCI_ds_mag_50", "V.Result_CSCI_q99", "V.Result_CSCI_wet_bfl_mag_10")
+
+new_order <- c("I.COMID", "II.Rel_Alt_ds_mag_50", "II.Rel_Alt_peak_2", "II.Rel_Alt_sp_mag", "II.Rel_Alt_wet_bfl_mag_50", 
+               "II.Rel_Alt_fa_mag", "II.Rel_Alt_peak_10", "III.Probability_Threshold", "IV.Prob_ASCI_ds_mag_50", "IV.Prob_ASCI_peak_2",         
+               "IV.Prob_ASCI_sp_mag", "IV.Prob_ASCI_wet_bfl_mag_50", "IV.Prob_CSCI_ds_mag_50", "IV.Prob_CSCI_fa_mag", "IV.Prob_CSCI_peak_10", 
+               "IV.Prob_CSCI_wet_bfl_mag_50", "IV.Prob_Toad_Mean", "V.Result_ASCI_ds_mag_50", "V.Result_ASCI_peak_2", "V.Result_ASCI_sp_mag", 
+               "V.Result_ASCI_wet_bfl_mag_50", "V.Result_CSCI_ds_mag_50", "V.Result_CSCI_fa_mag", "V.Result_CSCI_peak_10", "V.Result_CSCI_wet_bfl_mag_50")
 
 ## the actual final, finished product that goes into making the shp file  
 final_product <-  final_product[, new_order]
 
-write.csv(final_product, "C:/Users/racheld/Downloads/final_product.csv")
+write.csv(final_product, "output_data/Manuscript/09_final_product.csv", row.names = FALSE)
 
 #################################################################################################
 # Adding columns that I missed from relative alteration to final DF
 
 ## read in final data set
-to_edit <- read.csv("C:/Users/racheld/Downloads/final_product.csv")
+to_edit <- read.csv("output_data/Manuscript/09_final_product.csv")
 
 # reformatting table 
 relative_alteration_edited <- relative_alteration %>% 
   dplyr::select(comid, metric, Relative_Alteration) %>% 
   pivot_wider(names_from = metric, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_") %>% 
-  dplyr::select(-c(II.Rel_Alt_q99, II.Rel_Alt_ds_mag_50, II.Rel_Alt_wet_bfl_mag_10)) %>% 
+  dplyr::select(-c(II.Rel_Alt_ds_mag_50, II.Rel_Alt_peak_2, II.Rel_Alt_sp_mag, II.Rel_Alt_wet_bfl_mag_50, II.Rel_Alt_fa_mag, II.Rel_Alt_peak_10)) %>% 
   right_join(to_edit, by = c('comid' = 'I.COMID')) %>%
   rename(`I.COMID` = comid)
 
-relative_alteration_edited_order = c("I.COMID", "II.Rel_Alt_fa_mag", "II.Rel_Alt_wet_bfl_mag_10", "II.Rel_Alt_wet_bfl_mag_50", "II.Rel_Alt_peak_2",  "II.Rel_Alt_peak_5", "II.Rel_Alt_peak_10",
-              "II.Rel_Alt_q99",  "II.Rel_Alt_sp_mag", "II.Rel_Alt_ds_mag_50", "III.Probability_Threshold", "IV.Prob_ASCI_q99", "IV.Prob_ASCI_ds_mag_50", "IV.Prob_CSCI_q99", 
-              "IV.Prob_CSCI_wet_bfl_mag_10", "IV.Prob_Toad_Mean", "V.Result_ASCI_q99", "V.Result_ASCI_ds_mag_50", "V.Result_CSCI_q99", "V.Result_CSCI_wet_bfl_mag_10")
+relative_alteration_edited_order = c("I.COMID", "II.Rel_Alt_ds_mag_50", "II.Rel_Alt_peak_2", "II.Rel_Alt_sp_mag", "II.Rel_Alt_wet_bfl_mag_50", 
+                                     "II.Rel_Alt_fa_mag", "II.Rel_Alt_peak_10", "II.Rel_Alt_peak_5", "II.Rel_Alt_wet_bfl_mag_10", "II.Rel_Alt_q99",
+                                     "III.Probability_Threshold", "IV.Prob_ASCI_ds_mag_50", "IV.Prob_ASCI_peak_2", "IV.Prob_ASCI_sp_mag", "IV.Prob_ASCI_wet_bfl_mag_50", 
+                                     "IV.Prob_CSCI_ds_mag_50", "IV.Prob_CSCI_fa_mag", "IV.Prob_CSCI_peak_10", "IV.Prob_CSCI_wet_bfl_mag_50", "IV.Prob_Toad_Mean", "V.Result_ASCI_ds_mag_50", 
+                                     "V.Result_ASCI_peak_2", "V.Result_ASCI_sp_mag", "V.Result_ASCI_wet_bfl_mag_50", "V.Result_CSCI_ds_mag_50", "V.Result_CSCI_fa_mag", "V.Result_CSCI_peak_10", 
+                                     "V.Result_CSCI_wet_bfl_mag_50")
 
 ## the actual final, finished product that goes into making the shp file  
 relative_alteration_edited <-  relative_alteration_edited[, relative_alteration_edited_order]
 
-write.csv(relative_alteration_edited, "C:/Users/racheld/Downloads/RiskFramework_Data_Final.csv", row.names=FALSE)
+write.csv(relative_alteration_edited, "output_data/Manuscript/RiskFramework_Data_Final.csv", row.names=FALSE)
 
 
  
@@ -228,16 +260,16 @@ write.csv(relative_alteration_edited, "C:/Users/racheld/Downloads/RiskFramework_
 # Shp file ----------------------------------------------------------------
 ### making shp file 
 #re-read in csv due to shpfile making problems 
-relative_alteration_edited <- read.csv("C:/Users/racheld/Downloads/RiskFramework_Data_Final.csv")
+relative_alteration_edited <- read.csv("output_data/Manuscript/RiskFramework_Data_Final.csv")
 
 #renaming variables for shpfile because ArcGIS truncates it 
 relative_alteration_edited <- relative_alteration_edited %>%
-  rename("COMID" = "I.COMID", "AltFaMag" = "II.Rel_Alt_fa_mag", "AltWBFL10" = "II.Rel_Alt_wet_bfl_mag_10", "AltWBFL50" = "II.Rel_Alt_wet_bfl_mag_50", 
-         "AltPeak2" = "II.Rel_Alt_peak_2", "AltPeak5" = "II.Rel_Alt_peak_5", "AltPeak10" = "II.Rel_Alt_peak_10", "AltQ99" = "II.Rel_Alt_q99", "AltSpMag" = "II.Rel_Alt_sp_mag", 
-         "AltDsMag50" = "II.Rel_Alt_ds_mag_50", "ProbThld" = "III.Probability_Threshold", "ProbAQ99" = "IV.Prob_ASCI_q99",
-         "ProbADM50" = "IV.Prob_ASCI_ds_mag_50", "ProbCQ99" = "IV.Prob_CSCI_q99", "ProbCWBM10" = "IV.Prob_CSCI_wet_bfl_mag_10",
-         "PrbTdMn" = "IV.Prob_Toad_Mean", "ResAQ99" = "V.Result_ASCI_q99", "ResADM50" = "V.Result_ASCI_ds_mag_50",
-         "ResCQ99" = "V.Result_CSCI_q99", "ResCWBM10" = "V.Result_CSCI_wet_bfl_mag_10")
+  rename("COMID" = "I.COMID", "AltDM50" = "II.Rel_Alt_ds_mag_50", "AltP2" = "II.Rel_Alt_peak_2", "AltSpMag" = "II.Rel_Alt_sp_mag", "AltWBFL50" = "II.Rel_Alt_wet_bfl_mag_50",
+         "AltFaMag" = "II.Rel_Alt_fa_mag", "AltP10" = "II.Rel_Alt_peak_10", "AltP5" = "II.Rel_Alt_peak_5", "AltWBFL10" = "II.Rel_Alt_wet_bfl_mag_10", "AltQ99" = "II.Rel_Alt_q99",
+         "Prob_Thresh" = "III.Probability_Threshold", "PbASCIDM50" = "IV.Prob_ASCI_ds_mag_50", "PbASCIP2" = "IV.Prob_ASCI_peak_2", "PbASCISpMg" = "IV.Prob_ASCI_sp_mag", 
+         "PbASCIBFL50" = "IV.Prob_ASCI_wet_bfl_mag_50", "PbCSCIDM50" = "IV.Prob_CSCI_ds_mag_50", "PbCSCIFMg" = "IV.Prob_CSCI_fa_mag", "PbCSCIP10" = "IV.Prob_CSCI_peak_10", "PbCSCIBFL50" = "IV.Prob_CSCI_wet_bfl_mag_50", 
+         "ProbToadMn" = "IV.Prob_Toad_Mean", "ResADM50" = "V.Result_ASCI_ds_mag_50", "ResASCIP2" = "V.Result_ASCI_peak_2", "ResASCISMag" = "V.Result_ASCI_sp_mag", "ResASCIBFL50" = "V.Result_ASCI_wet_bfl_mag_50", 
+         "ResCSCIDM50" = "V.Result_CSCI_ds_mag_50", "ResCSCIFMag" = "V.Result_CSCI_fa_mag", "ResCSCIP10" = "V.Result_CSCI_peak_10", "ResCSCIBFL50" = "V.Result_CSCI_wet_bfl_mag_50")
 
 ## projection
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
@@ -263,7 +295,7 @@ deliverable_shp_file_january <-  relative_alteration_edited %>%
 
 
 ## write out the shapefile 
-sf::st_write(deliverable_shp_file_january, "output_data/RiskFramework_Data_Final.shp", 
+sf::st_write(deliverable_shp_file_january, "output_data/Manuscript/Shapefiles/RiskFramework_Data_Final.shp", 
               driver = "ESRI Shapefile", append = FALSE)
 
 
