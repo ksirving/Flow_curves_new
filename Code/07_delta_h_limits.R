@@ -20,7 +20,12 @@ labels
 # ASCI --------------------------------------------------------------------
 
 ## upload data
-all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_July2023.csv") ## change data here!!! #edited 8/29
+all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_July2023.csv") %>% ## change data here!!! #edited 8/29
+  mutate(PredictedProbability = case_when(hydro.endpoints == "d_peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values 
+                                          hydro.endpoints == "d_peak_5" & hydro > 0 ~ NA_real_,
+                                          hydro.endpoints == "d_peak_2" & hydro > 0 ~ NA_real_,
+                                          TRUE ~ as.numeric(PredictedProbability)))
+
 
 ## FIX NAMES TO MATCH LABELS AND LIMITS - Rachel 9/6
 all_asci <- all_asci %>% 
@@ -62,7 +67,11 @@ unique(all_asci_sub$hydro.endpoints)
 # CSCI --------------------------------------------------------------------
 
 ## upload data
-all_csci <- read.csv("output_data/01_CSCI_neg_pos_logR_metrics_figures_July2023.csv") #edited 8/29
+all_csci <- read.csv("output_data/01_CSCI_neg_pos_logR_metrics_figures_July2023.csv") %>% #edited 8/29
+  mutate(PredictedProbability = case_when(hydro.endpoints == "d_peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values 
+                                          hydro.endpoints == "d_peak_5" & hydro > 0 ~ NA_real_,
+                                          hydro.endpoints == "d_peak_2" & hydro > 0 ~ NA_real_,
+                                          TRUE ~ as.numeric(PredictedProbability)))
 
 ## FIX NAMES TO MATCH LABELS AND LIMITS - Rachel 9/6
 all_csci <- all_csci %>% 

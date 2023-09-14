@@ -59,9 +59,18 @@ current_pred_prob <- current_predicted_prob %>%
 ############################################################################################################################################
 ### adding the proximity and threshold classification columns to df 
 proximity_df <- current_pred_prob %>%
-  mutate(Classification = ifelse(hydro <= Positive & hydro >= Negative, "Within", 
-                                 ifelse(hydro > Positive, "Augmented", 
-                                        ifelse(hydro < Negative, "Depleted", "NA")))) %>%
+  # Rachel edited 9/13
+  mutate(Classification = case_when(hydro <= Positive & hydro >= Negative ~ "Within", 
+                                    hydro > Positive ~ "Augmented", 
+                                    hydro < Negative ~ "Depleted",
+                                    is.na(PredictedProbability) ~ "Indeterminant", 
+                                    str_detect(Hydro_endpoint, "^Peak") & hydro < 0 & hydro > Negative ~ "Within",
+                                    T ~ "Wrong")) %>% 
+  
+  # mutate(Classification = ifelse(hydro <= Positive & hydro >= Negative, "Within", 
+  #                                ifelse(hydro > Positive, "Augmented", 
+  #                                       ifelse(hydro < Negative, "Depleted", "Bad")))) %>%
+  
   mutate(Prox_Positive = Positive - hydro) %>%
   mutate(Prox_Negative = Negative - hydro) %>%
   
@@ -79,13 +88,14 @@ final_dfv2 <- proximity_df %>%
                           ifelse(Classification == "Augmented", paste("Current Delta FFM is augmented. Proposed project can decrease by", 
                                                                       abs(Prox_Positivev2), "to",  abs(Prox_Negativev2), "cfs."), 
                                  ifelse(Classification == "Depleted", paste("Current Delta FFM is depleted. Proposed project can increase by", 
-                                                                             Prox_Negativev2, "to",  Prox_Positivev2, "cfs."), "NA")))) %>%
+                                                                             Prox_Negativev2, "to",  Prox_Positivev2, "cfs."),
+                                        ifelse(Classification == "Indeterminant", "A probability of 'NA' indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", "Bad"))))) %>%
   dplyr::select(-c(Prox_Positivev2, Prox_Negativev2))
 
-
-# write.csv(final_dfv2, "C:/Users/racheld/OneDrive - SCCWRP/Desktop/prox_threshold.csv")
-
-
+# 
+# write.csv(final_dfv2, "C:/Users/racheld/Downloads/prox_threshold.csv")
+# 
+# write.csv(current_pred_prob, "C:/Users/racheld/Downloads/current_pred_prob.csv")
 ############################################################################
 # Shp file for 2nd deliverable  -------------------------------------------
 # Based off data above 
@@ -297,6 +307,5 @@ deliverable_shp_file_january <-  relative_alteration_edited %>%
 ## write out the shapefile 
 sf::st_write(deliverable_shp_file_january, "output_data/Manuscript/Shapefiles/RiskFramework_Data_Final.shp", 
               driver = "ESRI Shapefile", append = FALSE)
-
 
 

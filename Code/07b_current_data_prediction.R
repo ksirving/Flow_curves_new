@@ -22,7 +22,7 @@ library(maptools)
 library(rgdal)
 
 getwd()
-out.dir <- "figures/"
+# out.dir <- "figures/"
 
 ## full names for labels
 labels <- read.csv("input_data/ffm_names.csv")
@@ -108,7 +108,11 @@ write.csv(delta_long, "ignore/07b_delta_h_long.csv")
 # ASCI Curve data --------------------------------------------------------------------
 
 
-all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_July2023.csv")
+all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_July2023.csv") %>% 
+  mutate(PredictedProbability = case_when(hydro.endpoints == "d_peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values 
+                                          hydro.endpoints == "d_peak_5" & hydro > 0 ~ NA_real_,
+                                          hydro.endpoints == "d_peak_2" & hydro > 0 ~ NA_real_,
+                                          TRUE ~ as.numeric(PredictedProbability)))
 head(all_asci)
 
 ## FIX NAMES TO MATCH LABELS AND LIMITS - Rachel 9/7
@@ -144,7 +148,11 @@ all_asci <- left_join(all_asci, labels, by = "Hydro_endpoint")
 # CSCI Curve data--------------------------------------------------------------------
 
 
-all_csci <- read.csv("output_data/01_csci_neg_pos_logR_metrics_figures_July2023.csv")
+all_csci <- read.csv("output_data/01_csci_neg_pos_logR_metrics_figures_July2023.csv") %>% 
+  mutate(PredictedProbability = case_when(hydro.endpoints == "d_peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values 
+                                          hydro.endpoints == "d_peak_5" & hydro > 0 ~ NA_real_,
+                                          hydro.endpoints == "d_peak_2" & hydro > 0 ~ NA_real_,
+                                          TRUE ~ as.numeric(PredictedProbability)))
 head(all_csci)
 
 ## FIX NAMES TO MATCH LABELS AND LIMITS - Rachel 9/7
@@ -244,7 +252,7 @@ cols <- c("comid", "comid_wy", "wayr", "WYT", "abs_FFM_median_cfs", "hydro", "Fl
           "Scenario", "hydro.endpoints", "PredictedProbability", "PredictedProbabilityScaled", "index")
 finalASCI_df_RB9 <- data.frame(matrix(nrow=1, ncol = length(cols)))
 colnames(finalASCI_df_RB9) <- cols
-# i=1
+# i=2
 ## loop through metrics
 for(i in 1: length(metrics)) {
   
@@ -352,6 +360,14 @@ for(i in 1: length(metrics)) {
 }
 
 finalASCI_df_RB9 <- finalASCI_df_RB9[-1,]
+
+## taking away + peak data - WILL HAVE TO EDIT METRIC NAME IF WE CHANGE METRICS
+finalASCI_df_RB9 <- finalASCI_df_RB9 %>%
+  mutate(PredictedProbability = case_when(FlowMetric == "peak_2" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+                                          TRUE ~ as.numeric(PredictedProbability))) %>%
+  mutate(PredictedProbabilityScaled = case_when(FlowMetric == "peak_2" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+                                                TRUE ~ as.numeric(PredictedProbabilityScaled)))
+#   
 
 #### write to CSV
 write.csv(finalASCI_df_RB9, file = "output_data/Manuscript/07b_ASCI_prob.csv")
@@ -516,6 +532,14 @@ for(i in 1: length(metrics)) {
 
 finalCSCI_df_RB9 <- finalCSCI_df_RB9[-1,]
 
+## taking away + peak data - WILL HAVE TO EDIT METRIC NAME IF WE CHANGE METRICS
+finalCSCI_df_RB9 <- finalCSCI_df_RB9 %>%
+  mutate(PredictedProbability = case_when(FlowMetric == "peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+                                          TRUE ~ as.numeric(PredictedProbability))) %>%
+  mutate(PredictedProbabilityScaled = case_when(FlowMetric == "peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+                                                TRUE ~ as.numeric(PredictedProbabilityScaled)))
+
+
 #### write to CSV
 write.csv(finalCSCI_df_RB9, file = "output_data/Manuscript/07b_CSCI_prob.csv")
 
@@ -569,7 +593,7 @@ calinhd <- readOGR('/Users/racheld/SCCWRP/SD Hydro Vulnerability Assessment - Ge
   spTransform(prj) %>%
   st_as_sf %>%
   st_simplify(dTolerance = 0.5, preserveTopology = T)
-unique(calinhd$COMID)
+# unique(calinhd$COMID)
 
 ## map
 
@@ -629,7 +653,7 @@ met_ind
 names <- c("Dry-season median baseflow", "2-year flood magnitude", "Spring recession magnitude", "Wet-season median baseflow", 
            "Dry-season median baseflow", "Fall pulse magnitude", "10-year flood magnitude", "Wet-season median baseflow")
 
-# z = "ASCI_Q99"
+# z = "CSCI_Peak_10"
 for(z in met_ind){
   #subset 
   subset.index <- subset[subset$metric_index == z,]
@@ -668,26 +692,38 @@ for(z in met_ind){
     #print map
     study
     
-    # subset lookup categories and tables
+    # synthesis maps for bio index z
     
-    # lookup.sub <- lookup[lookup$alteration %in% unique(subset.join$`Alteration - Biology`),]
-    # 
-    # # save as factor to sort categories in legend
-    # lookup.sub$alteration <- factor(lookup.sub$alteration, levels = unique(lookup.sub$alteration))
-    # subset.join$`Alteration - Biology` <- factor(subset.join$`Alteration - Biology`, levels = unique(lookup.sub$alteration))
-    # 
+    #Rachel edited this to make an if else statement 9/13 to add the NA for peak metrics 
+    #####################################################################################
+    if(z %in% c("CSCI_Peak_10", "CSCI_Peak_5", "CSCI_Peak_2", "ASCI_Peak_10", "ASCI_Peak_5", "ASCI_Peak_2")) {
     
-    # synthesis map for bio index z
-    syn.plot <- study + geom_sf(data = subset.join, aes(color= PredictedProbabilityScaled, geometry = geometry)) +
+    syn.plot <- study + geom_sf(data = subset.join, aes(color= PredictedProbabilityScaled, geometry = geometry, linetype = !is.na(PredictedProbabilityScaled))) +
+      ## Rachel added "linetype = is.na(PredictedProbabilityScaled)" 9/12
       scale_color_distiller(palette = "Spectral", direction = 1) +
-      labs(color = "Predicted Probability")
+      labs(color = "Predicted Probability", linetype = "") +
+      # rachel edited 9/12
+      scale_linetype_manual(values = c(1,2), labels = c("Indeterminate", "")) +
+      guides(
+        linetype = guide_legend(override.aes = list(linetype = c(1,NA)), order = 2),
+        color = guide_colorbar(order = 1)
+      ) +
+      theme(legend.key = element_blank())
+    # print
+    # print(syn.plot)
+    
+    } else{
+      # synthesis map for bio index z
+      syn.plot <- study + geom_sf(data = subset.join, aes(color= PredictedProbabilityScaled, geometry = geometry)) +
+        scale_color_distiller(palette = "Spectral", direction = 1) +
+        labs(color = "Predicted Probability")
+    }
     # scale_color_viridis_c(option = "A") 
     
-    # print
-    print(syn.plot)
+    
     
     # write plot
-    out.filename <- paste0("output_data/Manuscript/Figures/Maps/07b_", z, "_predicted_prob_Current.jpg") 
+    out.filename <- paste0("output_data/Manuscript/Figures/Maps/07b_", z, "_predicted_prob_Current_updated.jpg") 
     ggsave(syn.plot, file = out.filename, dpi=300, height=4, width=6)
     
   # }
@@ -706,12 +742,20 @@ ascipeak2_stats <- combined_metrics_index %>%
 ## 422 comids 
 422/2116 *100 ## 19.94329 %
 
+# after NA's introduced 
+#340 comids
+340/2116 *100 ## 16.06805 %
+
 ## bad q99 < 0.7
 ascipeak2_stats_bad <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "Peak_2") %>%
   distinct()
 ##  comids 
 1694/2116 *100  ## 80.05671 %
+
+# after NA's introduced 
+#1315 comids
+1315/2116 *100 ## 62.14556 %
 
 #######################
 
@@ -795,12 +839,20 @@ csci_p10_stats <- combined_metrics_index %>%
 ## 424 comids 
 424/2116 *100  ## 20.03781 %
 
+# after NA's introduced 
+#326 comids
+326/2116 *100 ## 15.40643 %
+
 ## bad q99 < 0.5
 csci_p10_stats_bad <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "Peak_10") %>%
   distinct()
 ## 1692 comids 
 1692/2116 * 100 ## 79.96219 %
+
+# after NA's introduced 
+#681 comids
+681/2116 *100 ## 32.18336 %
 
 # FA_Mag ---------------------------------------------------------------
 ## ## greater than or = to 0.7 or 70% of good score ------ changed this from 50%

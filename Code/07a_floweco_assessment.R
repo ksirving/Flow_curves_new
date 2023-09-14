@@ -51,7 +51,11 @@ limits <- left_join(limits, labels, by = "Hydro_endpoint")
 # ASCI Curve data --------------------------------------------------------------------
 
 ### read in curve data based on glms & +/- delta H for each FFM - csci - same as data from 00_format_data
-all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_July2023.csv") # rachel added new data 9/6
+all_asci <- read.csv("output_data/01_h_asci_neg_pos_logR_metrics_figures_July2023.csv") %>% # rachel added new data 9/6
+  mutate(PredictedProbability = case_when(hydro.endpoints == "d_peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values 
+                                          hydro.endpoints == "d_peak_5" & hydro > 0 ~ NA_real_,
+                                          hydro.endpoints == "d_peak_2" & hydro > 0 ~ NA_real_,
+                                          TRUE ~ as.numeric(PredictedProbability)))
 head(all_asci)
 
 ## FIX NAMES TO MATCH LABELS AND LIMITS - Rachel 9/6
@@ -86,7 +90,11 @@ all_asci <- left_join(all_asci, labels, by ="Hydro_endpoint")
 # CSCI Curve data--------------------------------------------------------------------
 
 ### read in curve data based on glms & +/- delta H for each FFM - csci - same as data from 00_format_data - csci
-all_csci <- read.csv("output_data/01_csci_neg_pos_logR_metrics_figures_July2023.csv") # rachel added new data 9/6
+all_csci <- read.csv("output_data/01_csci_neg_pos_logR_metrics_figures_July2023.csv") %>% # rachel added new data 9/6
+  mutate(PredictedProbability = case_when(hydro.endpoints == "d_peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values 
+                                          hydro.endpoints == "d_peak_5" & hydro > 0 ~ NA_real_,
+                                          hydro.endpoints == "d_peak_2" & hydro > 0 ~ NA_real_,
+                                          TRUE ~ as.numeric(PredictedProbability)))
 head(all_csci)
 
 ## FIX NAMES TO MATCH LABELS AND LIMITS - Rachel 9/6

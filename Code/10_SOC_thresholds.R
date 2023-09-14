@@ -38,7 +38,6 @@ all_csci <- left_join(all_csci, labels, by =c("hydro.endpoints" = "Hydro_endpoin
 head(all_csci)
 
 # csci_metrics <-c("Q99", "DS_Tim", "DS_Dur_WS") #edited - add all mag metrics
-#choosing metrics (only mag bc that's all Kris has)
 SOC_metrics <-c("DS_Dur_WS", "DS_Mag_50", "DS_Mag_90", "DS_Tim", "FA_Dur", "FA_Mag", "FA_Tim", "Q99", "SP_Dur", 
                 "SP_Mag", "SP_ROC", "SP_Tim", "Wet_BFL_Dur", "Wet_BFL_Mag_10", "Wet_BFL_Mag_50", "Wet_Tim") ## changed to SOC metrics for SOC script
 
