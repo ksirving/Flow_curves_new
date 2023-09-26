@@ -12,9 +12,9 @@ load("Code/functions/root_interpolation_function.Rdata")
 labels <- read.csv("Data/ffm_names.csv")
 labels <- labels[1:24, ]
 labels <- labels %>% rename(hydro.endpoints = Flow.Metric.Code)
-labels[25, 1] <- "Magnitude of largest annual storm"
+labels[25, 1] <- "Peak Flow Magnitude (Q99, cfs)"
 labels[25, 2] <- "Q99"
-labels[25, 3] <- "Peak Flow"
+labels[25, 3] <- "Peak Flow Magnitude"
 labels
 
 # ASCI --------------------------------------------------------------------

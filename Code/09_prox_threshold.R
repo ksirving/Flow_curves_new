@@ -84,16 +84,32 @@ proximity_df <- current_pred_prob %>%
 final_dfv2 <- proximity_df %>%
   mutate(Prox_Positivev2 = as.numeric(Prox_Positivev2)) %>%
   mutate(Prox_Negativev2 = as.numeric(Prox_Negativev2)) %>%
-  mutate(Results = ifelse(Classification == "Within", paste("Current Delta FFM is within limits. Proposed project should not increase by more than", Prox_Positivev2, "cfs or decrease by more than",  abs(Prox_Negativev2), "cfs."),
-                          ifelse(Classification == "Augmented", paste("Current Delta FFM is augmented. Proposed project can decrease by", 
-                                                                      abs(Prox_Positivev2), "to",  abs(Prox_Negativev2), "cfs."), 
-                                 ifelse(Classification == "Depleted", paste("Current Delta FFM is depleted. Proposed project can increase by", 
-                                                                             Prox_Negativev2, "to",  Prox_Positivev2, "cfs."),
-                                        ifelse(Classification == "Indeterminant", "A probability of 'NA' indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", "Bad"))))) %>%
+  # test code 
+  mutate(Results = case_when(Classification == "Within" ~ paste("Current Delta FFM is within limits. Proposed project should not increase by more than", Prox_Positivev2, "cfs or decrease by more than",  abs(Prox_Negativev2), "cfs."),
+                             Classification == "Augmented" ~ paste("Current Delta FFM is augmented. Proposed project can decrease by", abs(Prox_Positivev2), "to",  abs(Prox_Negativev2), "cfs."),
+                             Classification == "Depleted" ~ paste("Current Delta FFM is depleted. Proposed project can increase by", Prox_Negativev2, "to",  Prox_Positivev2, "cfs."),
+                             Classification == "Indeterminant" ~ "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.",
+                             T ~ "Bad"
+                             )) %>% 
+  mutate(Results = case_when(Classification == "Within" & str_detect(Hydro_endpoint, "^Peak") ~ paste("Current Delta FFM is within limits. Proposed project should not decrease by more than", abs(Prox_Negativev2), "cfs and can increase by up to", abs(round(hydro,  digits = 2)), "cfs. However, any increase beyond", abs(round(hydro,  digits = 2)), "cfs is uncertain."),
+                             Classification == "Depleted" & str_detect(Hydro_endpoint, "^Peak") ~ paste("Current Delta FFM is depleted. Proposed project can increase by", abs(Prox_Negativev2), "to", abs(round(hydro,  digits = 2)), "cfs. However, any increase beyond", abs(round(hydro,  digits = 2)), "cfs is uncertain."),
+                             T ~ as.character(Results))) %>% 
+  
+  
+  # old code 
+  # mutate(Results = ifelse(Classification == "Within", paste("Current Delta FFM is within limits. Proposed project should not increase by more than", Prox_Positivev2, "cfs or decrease by more than",  abs(Prox_Negativev2), "cfs."),
+  #                         ifelse(Classification == "Augmented", paste("Current Delta FFM is augmented. Proposed project can decrease by", 
+  #                                                                     abs(Prox_Positivev2), "to",  abs(Prox_Negativev2), "cfs."), 
+  #                                ifelse(Classification == "Depleted", paste("Current Delta FFM is depleted. Proposed project can increase by", 
+  #                                                                            Prox_Negativev2, "to",  Prox_Positivev2, "cfs."),
+  #                                       # Rachel added lines below for Peak edits 9/14/2023
+  #                                       ifelse(Classification == "Indeterminant", "A probability of 'NA' indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", 
+  #                                              ifelse(Classification == "Within" & str_detect(Hydro_endpoint, "^Peak"), paste("Current Delta FFM is within limits. Proposed project should not decrease by more than", Prox_Negativev2, 
+  #                                                                                                                             "cfs and can increase by up to", abs(hydro), ". However, any increase beyond", abs(hydro), "cfs is uncertain."), "Bad")))))) %>%
   dplyr::select(-c(Prox_Positivev2, Prox_Negativev2))
 
 # 
-# write.csv(final_dfv2, "C:/Users/racheld/Downloads/prox_threshold.csv")
+write.csv(final_dfv2, "C:/Users/racheld/Downloads/prox_threshold.csv", row.names = FALSE)
 # 
 # write.csv(current_pred_prob, "C:/Users/racheld/Downloads/current_pred_prob.csv")
 ############################################################################
@@ -250,7 +266,10 @@ relative_alteration_edited <- relative_alteration %>%
   pivot_wider(names_from = metric, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_") %>% 
   dplyr::select(-c(II.Rel_Alt_ds_mag_50, II.Rel_Alt_peak_2, II.Rel_Alt_sp_mag, II.Rel_Alt_wet_bfl_mag_50, II.Rel_Alt_fa_mag, II.Rel_Alt_peak_10)) %>% 
   right_join(to_edit, by = c('comid' = 'I.COMID')) %>%
-  rename(`I.COMID` = comid)
+  rename(`I.COMID` = comid) %>% 
+  mutate(IV.Prob_ASCI_peak_2 = if_else(is.na(IV.Prob_ASCI_peak_2), -9999, as.numeric(IV.Prob_ASCI_peak_2))) %>% 
+  mutate(IV.Prob_CSCI_peak_10 = if_else(is.na(IV.Prob_CSCI_peak_10), -9999, as.numeric(IV.Prob_CSCI_peak_10))) %>% 
+  mutate(IV.Prob_Toad_Mean = if_else(is.na(IV.Prob_Toad_Mean), -9999, as.numeric(IV.Prob_Toad_Mean)))
 
 relative_alteration_edited_order = c("I.COMID", "II.Rel_Alt_ds_mag_50", "II.Rel_Alt_peak_2", "II.Rel_Alt_sp_mag", "II.Rel_Alt_wet_bfl_mag_50", 
                                      "II.Rel_Alt_fa_mag", "II.Rel_Alt_peak_10", "II.Rel_Alt_peak_5", "II.Rel_Alt_wet_bfl_mag_10", "II.Rel_Alt_q99",

@@ -28,9 +28,9 @@ getwd()
 labels <- read.csv("input_data/ffm_names.csv")
 labels <- labels[1:24, ]
 labels <- labels %>% rename(Hydro_endpoint = Flow.Metric.Code)
-labels[25, 1] <- "Magnitude of largest annual storm"
+labels[25, 1] <- "Peak Flow Magnitude (Q99, cfs)"
 labels[25, 2] <- "Q99"
-labels[25, 3] <- "Peak Flow"
+labels[25, 3] <- "Peak Flow Magnitude"
 labels
 
 
@@ -650,8 +650,8 @@ met_ind
 
 # names <- c("Magnitude of largest annual storm", "Dry-season median baseflow", "Magnitude of largest annual storm", "Wet-season low baseflow")
 # rachel edited 9/7
-names <- c("Dry-season median baseflow", "2-year flood magnitude", "Spring recession magnitude", "Wet-season median baseflow", 
-           "Dry-season median baseflow", "Fall pulse magnitude", "10-year flood magnitude", "Wet-season median baseflow")
+names <- c("Dry-Season Baseflow Magnitude (cfs)", "Peak Flow Magnitude (2-year flood, cfs)", "Spring Recession Flow Magnitude (cfs)", "Wet-Season Median Magnitude (cfs)", 
+           "Dry-Season Baseflow Magnitude (cfs)", "Fall Pulse Flow Magnitude (cfs)", "Peak Flow Magnitude (10-year flood, cfs)", "Wet-Season Median Magnitude (cfs)")
 
 # z = "CSCI_Peak_10"
 for(z in met_ind){
@@ -679,6 +679,7 @@ for(z in met_ind){
     ## Plot
     # Set up base map 
     study <- ggplot(SynthNHD) + 
+      # Rachel changed from color = lightgrey
       geom_sf(color = "lightgrey", fill= "white") +
       labs(title=title, subtitle = subtitle, x ="", y = "")  + 
       annotation_scale() +
@@ -698,17 +699,24 @@ for(z in met_ind){
     #####################################################################################
     if(z %in% c("CSCI_Peak_10", "CSCI_Peak_5", "CSCI_Peak_2", "ASCI_Peak_10", "ASCI_Peak_5", "ASCI_Peak_2")) {
     
-    syn.plot <- study + geom_sf(data = subset.join, aes(color= PredictedProbabilityScaled, geometry = geometry, linetype = !is.na(PredictedProbabilityScaled))) +
+    syn.plot <- study + 
+      geom_sf(data = subset.join, 
+              aes(color= PredictedProbabilityScaled, 
+                  geometry = geometry, 
+                  linetype = !is.na(PredictedProbabilityScaled), 
+                  linewidth = !is.na(PredictedProbabilityScaled))) +
       ## Rachel added "linetype = is.na(PredictedProbabilityScaled)" 9/12
       scale_color_distiller(palette = "Spectral", direction = 1) +
       labs(color = "Predicted Probability", linetype = "") +
       # rachel edited 9/12
-      scale_linetype_manual(values = c(1,2), labels = c("Indeterminate", "")) +
+      scale_linetype_manual(values = c(1,1), labels = c("Indeterminate", "")) +
+      scale_linewidth_manual(values = c(0.009, 0.65)) + #0.009
       guides(
-        linetype = guide_legend(override.aes = list(linetype = c(1,NA)), order = 2),
-        color = guide_colorbar(order = 1)
+        linetype = guide_legend(override.aes = list(linetype = c(1,NA), color = "lightgrey"), order = 2),
+        color = guide_colorbar(order = 1), 
+        linewidth = "none"
       ) +
-      theme(legend.key = element_blank())
+      theme(legend.key = element_blank()) 
     # print
     # print(syn.plot)
     
@@ -720,10 +728,10 @@ for(z in met_ind){
     }
     # scale_color_viridis_c(option = "A") 
     
-    
+    print(syn.plot)
     
     # write plot
-    out.filename <- paste0("output_data/Manuscript/Figures/Maps/07b_", z, "_predicted_prob_Current_updated.jpg") 
+    out.filename <- paste0("output_data/Manuscript/Figures/Maps/07b_", z, "_predicted_prob_Current_updated_09222023.jpg") 
     ggsave(syn.plot, file = out.filename, dpi=300, height=4, width=6)
     
   # }
@@ -895,7 +903,8 @@ clean <- combined_metrics_index %>%
   dplyr::select(-c(comid_wy, wayr, WYT, FlowMetric, Scenario, abs_FFM_median_cfs, hydro, PredictedProbability)) %>%
   rename(FlowMetric = hydro.endpoints, Index = index) %>%
   mutate(IndexCode = paste(Index, FlowMetric, sep= "_")) %>% 
-  mutate(PredictedProbabilityScaled = format(PredictedProbabilityScaled))
+  # mutate(PredictedProbabilityScaled = format(PredictedProbabilityScaled))
+  mutate(PredictedProbabilityScaled = if_else(is.na(PredictedProbabilityScaled), -9999, as.numeric(PredictedProbabilityScaled)))
 
 write_csv(clean, "output_data/Manuscript/07b_predicted_probability_combined_CSCI_ASCI.csv")
 

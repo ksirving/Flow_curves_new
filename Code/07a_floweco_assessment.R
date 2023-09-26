@@ -14,9 +14,9 @@ out.dir <- "figures/"
 labels <- read.csv("input_data/ffm_names.csv")
 labels <- labels[1:24, ]
 labels <- labels %>% rename(Hydro_endpoint = Flow.Metric.Code)
-labels[25, 1] <- "Magnitude of largest annual storm"
+labels[25, 1] <- "Peak Flow Magnitude (Q99, cfs)"
 labels[25, 2] <- "Q99"
-labels[25, 3] <- "Peak Flow"
+labels[25, 3] <- "Peak Flow Magnitude"
 labels
 
 

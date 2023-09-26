@@ -11,9 +11,9 @@ out.dir <- "output_data/Manuscript/Figures/New_Figures/"
 labels <- read.csv("Data/ffm_names.csv")
 labels <- labels[1:24, ]
 labels <- labels %>% rename(hydro.endpoints = Flow.Metric.Code)
-labels[25, 1] <- "Magnitude of largest annual storm"
+labels[25, 1] <- "Peak Flow Magnitude (Q99, cfs)"
 labels[25, 2] <- "Q99"
-labels[25, 3] <- "Peak Flow"
+labels[25, 3] <- "Peak Flow Magnitude"
 labels
 
 
@@ -90,6 +90,11 @@ for(m in 1:length(HydroEnds)) {
   all_cscix <- subset(all_csci,hydro.endpoints == paste(HydroEnds[m]))
   all_cscix <- all_cscix[order(all_cscix$PredictedProbabilityScaled, all_cscix$hydro),]
   
+  # Rachel edited 9/20
+  if(paste(HydroEnds[m]) %in% c("d_peak_10", "d_peak_2", "d_peak_5")){
+    all_cscix <- all_cscix %>% 
+      filter(Type == "Negative")
+  }
   
   q3 <- ggplot(all_cscix, aes(x=hydro, y=PredictedProbabilityScaled, color=Thresholds))+
     geom_path()+
@@ -103,7 +108,7 @@ for(m in 1:length(HydroEnds)) {
          x = "Delta H",
          y = "Probability of Good CSCI") #+ theme_bw(base_size = 15)
   q3
-  out.filename <- paste0(out.dir,"03_csci_", paste(HydroEnds[m]), "_0.79_updated.jpg")
+  out.filename <- paste0(out.dir,"03_csci_", paste(HydroEnds[m]), "_0.79_updated_0920.jpg")
   ggsave(q3, file = out.filename, dpi=300, height=4, width=6, bg = "white")
   
   
@@ -120,6 +125,7 @@ all_asci <- all_asci %>%
 
 ## define FFM to loop through
 HydroEnds <- unique(all_asci$hydro.endpoints)
+# m = 3
 
 for(m in 1:length(HydroEnds)) {
   
@@ -134,6 +140,12 @@ for(m in 1:length(HydroEnds)) {
   all_ascix <- subset(all_asci,hydro.endpoints == paste(HydroEnds[m]))
   all_ascix <- all_ascix[order(all_ascix$PredictedProbabilityScaled, all_ascix$hydro),]
   
+  # Rachel edited 9/20
+  if(paste(HydroEnds[m]) %in% c("d_peak_10", "d_peak_2", "d_peak_5")){
+    all_ascix <- all_ascix %>% 
+      filter(Type == "Negative")
+  }
+
   
   q3 <- ggplot(all_ascix, aes(x=hydro, y=PredictedProbabilityScaled, color=Thresholds))+
     geom_path()+
@@ -147,7 +159,8 @@ for(m in 1:length(HydroEnds)) {
          x = "Delta H",
          y = "Probability of Good ASCI") #+ theme_bw(base_size = 15)
   q3
-  out.filename <- paste0(out.dir,"03_asci_", paste(HydroEnds[m]), "_0.86_updated.jpg")
+
+  out.filename <- paste0(out.dir,"03_asci_", paste(HydroEnds[m]), "_0.86_updated_0920.jpg")
   ggsave(q3, file = out.filename, dpi=300, height=4, width=6, bg = "white")
   
   
