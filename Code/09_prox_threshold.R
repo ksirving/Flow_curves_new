@@ -84,7 +84,6 @@ proximity_df <- current_pred_prob %>%
 final_dfv2 <- proximity_df %>%
   mutate(Prox_Positivev2 = as.numeric(Prox_Positivev2)) %>%
   mutate(Prox_Negativev2 = as.numeric(Prox_Negativev2)) %>%
-  # test code 
   mutate(Results = case_when(Classification == "Within" ~ paste("Current Delta FFM is within limits. Proposed project should not increase by more than", Prox_Positivev2, "cfs or decrease by more than",  abs(Prox_Negativev2), "cfs."),
                              Classification == "Augmented" ~ paste("Current Delta FFM is augmented. Proposed project can decrease by", abs(Prox_Positivev2), "to",  abs(Prox_Negativev2), "cfs."),
                              Classification == "Depleted" ~ paste("Current Delta FFM is depleted. Proposed project can increase by", Prox_Negativev2, "to",  Prox_Positivev2, "cfs."),
@@ -109,7 +108,7 @@ final_dfv2 <- proximity_df %>%
   dplyr::select(-c(Prox_Positivev2, Prox_Negativev2))
 
 # 
-write.csv(final_dfv2, "C:/Users/racheld/Downloads/prox_threshold.csv", row.names = FALSE)
+# write.csv(final_dfv2, "C:/Users/racheld/Downloads/prox_threshold.csv", row.names = FALSE)
 # 
 # write.csv(current_pred_prob, "C:/Users/racheld/Downloads/current_pred_prob.csv")
 ############################################################################

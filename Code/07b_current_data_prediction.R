@@ -236,7 +236,7 @@ bio_h_summary <- bio_h_summary %>%
 ## upload GLMs and subset
 load(file = "models/01a_ASCI_negative_GLM_all_delta_mets_April2021.RData")
 neg.glm <- neg.glm[ind1]
-neg.glm
+# neg.glm
 load(file = "models/01a_ASCI_positive_GLM_all_delta_mets_April2021.RData")
 pos.glm <- pos.glm[ind1]
 
@@ -404,7 +404,7 @@ bio_h_summary <- bio_h_summary %>%
 ## upload GLMs and subset
 load(file = "models/01_CSCI_negative_GLM_all_delta_mets_April2021.RData")
 neg.glm <- neg.glm[ind1]
-neg.glm 
+# neg.glm 
 load(file = "models/01_CSCI_positive_GLM_all_delta_mets_April2021.RData")
 pos.glm <- pos.glm[ind1]
 

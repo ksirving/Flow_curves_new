@@ -123,6 +123,7 @@ metrics <- unique(all_asci_sub$comb_code_type)
 metrics <- metrics[grep("0.86", metrics)]  # edited by Rachel 8/29
 metrics
 
+# i = 1
   ## loop through metrics
   for(i in 1: length(metrics)) {
     
@@ -132,20 +133,20 @@ metrics
       filter(comb_code_type == met)
     
     ## get curves values at different probabilities
-    thresh50 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.7) ### 8/29 changed for new probability thresholds - used to be 0.5
-    thresh50 <- ifelse(length(thresh50) == 0, NA, thresh50)
+    thresh70 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.7) ### 8/29 changed for new probability thresholds - used to be 0.5
+    thresh70 <- ifelse(length(thresh70) == 0, NA, thresh70)
 
-    thresh25 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.9) ### 8/29 changed for new probability thresholds - used to be 0.25
-    thresh25 <- ifelse(length(thresh25) == 0, NA, thresh25)
+    thresh90 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.9) ### 8/29 changed for new probability thresholds - used to be 0.25
+    thresh90 <- ifelse(length(thresh90) == 0, NA, thresh90)
 
-    thresh75 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.99) ### 8/29 changed for new probability thresholds - used to be 0.75
-    thresh75 <- ifelse(length(thresh75) == 0, NA, thresh75)
+    thresh99 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.99) ### 8/29 changed for new probability thresholds - used to be 0.75
+    thresh99 <- ifelse(length(thresh99) == 0, NA, thresh99)
 
     ## add info to df
     df[i, 1] <- met
-    df[i, 2] <- thresh25
-    df[i, 3] <- thresh50
-    df[i, 4] <- thresh75
+    df[i, 2] <- thresh70
+    df[i, 3] <- thresh90
+    df[i, 4] <- thresh99
     df[i, 5] <- length(hydroxx$PredictedProbabilityScaled)
     df[i ,6] <- hydroxx$Type[1]
     df[i ,7] <- "ASCI"
@@ -182,20 +183,20 @@ for(i in 1: length(metrics)) {
     filter(comb_code_type == met)
   
   ## get curves values at different probabilities
-  thresh50 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.7) ### 8/29 changed for new probability thresholds - used to be 0.5
-  thresh50 <- ifelse(length(thresh50) == 0, NA, thresh50)
+  thresh70 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.7) ### 8/29 changed for new probability thresholds - used to be 0.5
+  thresh70 <- ifelse(length(thresh70) == 0, NA, thresh70)
   
-  thresh25 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.9) ### 8/29 changed for new probability thresholds - used to be 0.25
-  thresh25 <- ifelse(length(thresh25) == 0, NA, thresh25)
+  thresh90 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.9) ### 8/29 changed for new probability thresholds - used to be 0.25
+  thresh90 <- ifelse(length(thresh90) == 0, NA, thresh90)
   
-  thresh75 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.99) ### 8/29 changed for new probability thresholds - used to be 0.75
-  thresh75 <- ifelse(length(thresh75) == 0, NA, thresh75)
+  thresh99 <- RootLinearInterpolant(hydroxx$hydro, hydroxx$PredictedProbabilityScaled, 0.99) ### 8/29 changed for new probability thresholds - used to be 0.75
+  thresh99 <- ifelse(length(thresh99) == 0, NA, thresh99)
   
   ## add info to df
   df[i, 1] <- met
-  df[i, 2] <- thresh25
-  df[i, 3] <- thresh50
-  df[i, 4] <- thresh75
+  df[i, 2] <- thresh70
+  df[i, 3] <- thresh90
+  df[i, 4] <- thresh99
   df[i, 5] <- length(hydroxx$PredictedProbabilityScaled)
   df[i ,6] <- hydroxx$Type[1]
   df[i ,7] <- "CSCI"

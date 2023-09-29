@@ -1,0 +1,39 @@
+StationCode,Subbasin,COMID,new_subbasinname,Latitude,Longitude,CSCI,Biological.Condition.CSCI,Hydro.Alteration.CSCI,Stream.Characterization.CSCI,ASCI,Biological.Condition.ASCI,Hydro.Alteration.ASCI,Stream.Characterization.ASCI,New_Name,Synthesis.Alteration
+SMC01555,I01-010,20348689,101010,33.54998,-117.77966,0.57,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.5,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,I01-010,Low Priority
+901S00531,I01-011,20348625,101011,33.55975,-117.772,0.47,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.56,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,I01-011,Low Priority
+SMC00910,J01-010,20350539,201010,33.51383,-117.74426,0.67,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.35,Very likely altered,Likely Altered,Prioritized for Flow Management,J01-010,Medium Priority
+901S02702,J01-020,20350539,201020,33.51636,-117.74062,0.46,Very likely altered,Likely Altered,Prioritized for Flow Management,0.44,Very likely altered,Likely Altered,Prioritized for Flow Management,J01-020,High Priority
+901S06798,J01-020,20350539,201020,33.53154,-117.74144,0.61,Very likely altered,Likely Altered,Prioritized for Flow Management,0.74,Likely altered,Likely Altered,Prioritized for Flow Management,J01-020,High Priority
+ACJ01,J01-020,20350539,201020,33.52412,-117.73851,NA,NA,Likely Altered,NA,0.49,Very likely altered,Likely Altered,Prioritized for Flow Management,J01-020,High Priority
+901S01811,J01-041,20348641,201041,33.56418,-117.71792,0.66,Likely altered,Likely Unaltered,NA,0.52,Very likely altered,Likely Altered,Prioritized for Flow Management,J01-041,Medium Priority
+SMC01987,J01-061,20350507,201061,33.59028,-117.71185,0.82,Possibly altered,Likely Unaltered,Prioritized for Protection,0.74,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,J01-061,Low Priority
+SMC03011,J01-062,20350507,201062,33.6145,-117.6955,0.64,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.61,Very likely altered,Likely Altered,Prioritized for Flow Management,J01-062,Medium Priority
+901M14126,J04-010,20348639,204010,33.54743,-117.7223,0.59,Very likely altered,Likely Altered,Prioritized for Flow Management,0.46,Very likely altered,Likely Altered,Prioritized for Flow Management,J04-010,High Priority
+901M14137,K01-020,20350669,301020,33.49418,-117.71659,0.44,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.85,Possibly altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,K01-020,Low Priority
+SC-MB,K01-030,20348913,301030,33.50543,-117.70897,NA,NA,Likely Unaltered,NA,0.78,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,K01-030,Low Priority
+901S12942,L01-010,20350775,401010,33.4779,-117.6785,0.57,Very likely altered,NA,NA,0.5,Very likely altered,NA,NA,NA,NA
+901SJSJC9,L01-010,20350775,401010,33.48442,-117.67577,0.56,Very likely altered,NA,NA,0.65,Very likely altered,NA,NA,NA,NA
+901S39498,L01-020,20350679,401020,33.49038,-117.66532,0.53,Very likely altered,NA,NA,0.52,Very likely altered,NA,NA,NA,NA
+901S11685,L01-030,20350679,401030,33.5099,-117.6348,0.62,Very likely altered,NA,NA,0.65,Very likely altered,NA,NA,NA,NA
+901S45253,L01-030,20350679,401030,33.51442,-117.62613,0.6,Very likely altered,NA,NA,0.66,Very likely altered,NA,NA,NA,NA
+901S06030,L01-030,20350679,401030,33.50267,-117.64794,0.4,Very likely altered,NA,NA,0.49,Very likely altered,NA,NA,NA,NA
+901SJC74x,L01-040,20348781,401040,33.51917,-117.62372,0.45,Very likely altered,NA,NA,NA,NA,NA,NA,NA,NA
+901S04409,L01-121,20348411,401121,33.60347,-117.45314,0.95,Likely intact,Likely Unaltered,Prioritized for Protection,0.81,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,NA,Low Priority
+901S00313,L01-121,20348411,401121,33.60642,-117.44623,0.67,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,1.08,Likely intact,Likely Unaltered,Prioritized for Protection,NA,Low Priority
+TC-DO,L02-010,20348917,402010,33.49825,-117.66601,0.35,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.51,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,NA,Low Priority
+SMC01934,L02-010,20348917,402010,33.49,-117.66595,0.57,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.62,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,NA,Low Priority
+901PS0057,L02-021,20350529,402021,33.52977,-117.66957,0.71,Likely altered,Likely Altered,Prioritized for Flow Management,0.81,Likely altered,Likely Altered,Prioritized for Flow Management,NA,High Priority
+SMC00206,L02-021,20350529,402021,33.54359,-117.65963,0.84,Possibly altered,Likely Altered,Prioritized for Monitoring,0.6,Very likely altered,Likely Altered,Prioritized for Flow Management,NA,High Priority
+SMC00963,L02-022,20350529,402022,33.56401,-117.6514,0.87,Possibly altered,Likely Altered,Prioritized for Monitoring,0.57,Very likely altered,Likely Altered,Prioritized for Flow Management,NA,High Priority
+901M14138,L02-023,20350529,402023,33.57688,-117.63999,0.81,Possibly altered,Likely Altered,Prioritized for Monitoring,0.49,Very likely altered,Likely Altered,Prioritized for Flow Management,NA,High Priority
+901M14118,L02-030,20348413,402030,33.6098,-117.62739,0.92,Possibly altered,Likely Altered,Prioritized for Monitoring,NA,NA,Likely Unaltered,NA,NA,Medium Priority
+901M14134,L02-030,20348413,402030,33.59231,-117.63283,0.67,Likely altered,Likely Altered,Prioritized for Flow Management,NA,NA,Likely Unaltered,NA,NA,Medium Priority
+901TCSMP1,L02-031,20348269,402031,33.63582,-117.61739,0.72,Likely altered,Likely Altered,Prioritized for Flow Management,NA,NA,Likely Unaltered,NA,NA,Medium Priority
+REF-TCAS,L02-041,20348207,402041,33.67399,-117.53722,0.87,Possibly altered,Likely Unaltered,Prioritized for Protection,0.77,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,NA,Low Priority
+SMC00873,L02-050,20348415,402050,33.59849,-117.62668,0.71,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.61,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,NA,Low Priority
+SMC01257,L02-051,20348363,402051,33.60842,-117.61859,0.68,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.71,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,NA,Low Priority
+901S06851,L03-010,20348813,403010,33.55052,-117.67542,0.69,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.8,Likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,L03-010,Low Priority
+SMC03523,L03-020,20348517,403020,33.58478,-117.66437,0.59,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.42,Very likely altered,Likely Altered,Prioritized for Flow Management,L03-020,Medium Priority
+901M14124,M01-010,20350809,501010,33.43535,-117.62556,0.34,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,NA,NA,Likely Altered,NA,NA,Medium Priority
+SD-AP,M02-011,20350811,502011,33.44761,-117.6121,0.51,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,NA,NA,Likely Altered,NA,M02-011,Medium Priority
+901S00997,M02-011,20350811,502011,33.44002,-117.61937,0.47,Very likely altered,Likely Unaltered,Prioritized for Separate Stressor Evaluation,0.9,Possibly altered,Likely Altered,Prioritized for Monitoring,M02-011,Medium Priority
