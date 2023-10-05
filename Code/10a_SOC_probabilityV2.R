@@ -248,10 +248,10 @@ bio_h_summary <- bio_h_summary %>%
   mutate(comb_code = paste0( hydro.endpoints, "_", thresholds))
 
 ## upload GLMs and subset
-load(file = "models/01a_ASCI_negative_GLM_all_delta_mets_April2021.RData")
+load(file = "models/01a_ASCI_negative_GLM_all_delta_mets_July2023.RData")
 neg.glm <- neg.glm[ind1]
 # neg.glm
-load(file = "models/01a_ASCI_positive_GLM_all_delta_mets_April2021.RData")
+load(file = "models/01a_ASCI_positive_GLM_all_delta_mets_July2023.RData")
 pos.glm <- pos.glm[ind1]
 
 head(delta_long) ## new data to predict on
@@ -401,10 +401,10 @@ bio_h_summary <- bio_h_summary %>%
   mutate(comb_code = paste0(hydro.endpoints, "_", thresholds))
 
 ## upload GLMs and subset
-load(file = "models/01_CSCI_negative_GLM_all_delta_mets_April2021.RData")
+load(file = "models/01_CSCI_negative_GLM_all_delta_mets_July2023.RData")
 neg.glm <- neg.glm[ind1]
 # neg.glm 
-load(file = "models/01_CSCI_positive_GLM_all_delta_mets_April2021.RData")
+load(file = "models/01_CSCI_positive_GLM_all_delta_mets_July2023.RData")
 pos.glm <- pos.glm[ind1]
 
 head(delta_long) ## new data to predict on
@@ -422,7 +422,7 @@ cols <- c("site", "hydro.endpoints", "hydro", "Scenario", "FlowMetric",
 finalCSCI_df <- data.frame(matrix(nrow=1, ncol = length(cols)))
 colnames(finalCSCI_df) <- cols
 
-# i=2
+# i=6
 ## loop through metrics
 for(i in 1: length(metrics)) {
   
@@ -536,5 +536,5 @@ comb <- ASCI %>%
   bind_rows(CSCI) %>% 
   dplyr::select(-c(X))
 
-write.csv(comb, file = "output_data/10a_SOC_predicted_probability_ASCIandCSCI.csv", row.names = FALSE)
+write.csv(comb, file = "output_data/Manuscript/10a_SOC_predicted_probability_ASCIandCSCI.csv", row.names = FALSE)
 

@@ -266,9 +266,16 @@ relative_alteration_edited <- relative_alteration %>%
   dplyr::select(-c(II.Rel_Alt_ds_mag_50, II.Rel_Alt_peak_2, II.Rel_Alt_sp_mag, II.Rel_Alt_wet_bfl_mag_50, II.Rel_Alt_fa_mag, II.Rel_Alt_peak_10)) %>% 
   right_join(to_edit, by = c('comid' = 'I.COMID')) %>%
   rename(`I.COMID` = comid) %>% 
-  mutate(IV.Prob_ASCI_peak_2 = if_else(is.na(IV.Prob_ASCI_peak_2), -9999, as.numeric(IV.Prob_ASCI_peak_2))) %>% 
-  mutate(IV.Prob_CSCI_peak_10 = if_else(is.na(IV.Prob_CSCI_peak_10), -9999, as.numeric(IV.Prob_CSCI_peak_10))) %>% 
-  mutate(IV.Prob_Toad_Mean = if_else(is.na(IV.Prob_Toad_Mean), -9999, as.numeric(IV.Prob_Toad_Mean)))
+  # edited by Rachel 10/2 - adding NAs instead of "Null" for the CSV - comment in or out if needed
+  mutate(V.Result_ASCI_peak_2 = if_else(V.Result_ASCI_peak_2 == "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", 
+                                        "A probability of NA indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_ASCI_peak_2))) %>% 
+  mutate(V.Result_CSCI_peak_10 = if_else(V.Result_CSCI_peak_10 == "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", 
+                                        "A probability of NA indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_CSCI_peak_10)))
+#%>% 
+# comment in and out as needed - comment back in if needed for the ArcGIS Files 
+  # mutate(IV.Prob_ASCI_peak_2 = if_else(is.na(IV.Prob_ASCI_peak_2), -9999, as.numeric(IV.Prob_ASCI_peak_2))) %>% 
+  # mutate(IV.Prob_CSCI_peak_10 = if_else(is.na(IV.Prob_CSCI_peak_10), -9999, as.numeric(IV.Prob_CSCI_peak_10))) %>% 
+  # mutate(IV.Prob_Toad_Mean = if_else(is.na(IV.Prob_Toad_Mean), -9999, as.numeric(IV.Prob_Toad_Mean))) 
 
 relative_alteration_edited_order = c("I.COMID", "II.Rel_Alt_ds_mag_50", "II.Rel_Alt_peak_2", "II.Rel_Alt_sp_mag", "II.Rel_Alt_wet_bfl_mag_50", 
                                      "II.Rel_Alt_fa_mag", "II.Rel_Alt_peak_10", "II.Rel_Alt_peak_5", "II.Rel_Alt_wet_bfl_mag_10", "II.Rel_Alt_q99",

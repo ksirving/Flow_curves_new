@@ -96,7 +96,7 @@ final_dfv2 <- proximity_df %>%
     Classification == "Depleted" & Type == "Mag" ~
       paste("Current Delta FFM is depleted. Proposed project can increase by", Prox_Negativev2, "to",  Prox_Positivev2, "cfs."),
     
-    Classification == "Indeterminant" ~ "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.",
+    Classification == "Indeterminant" ~ "A probability of NA indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.",
     
     #Dur metrics 
     Classification == "Within" & Type == "Dur" ~
@@ -175,22 +175,44 @@ combined_dfs <- df_II %>%
   left_join(df_V, by = c("site", "III.Threshold")) %>% 
   distinct() %>% 
   rename(`I.Site` = site) %>% 
+#Rachel added/edited 10/2
+  mutate(V.Result_CSCI_FA_Mag = if_else(is.na(V.Result_CSCI_FA_Mag), "A probability of NA means no median delta FFM value is available.", as.character(V.Result_CSCI_FA_Mag)))
+  
+# for shapefile
+combined_dfs_shp <- df_II %>% 
+  left_join(df_III, by = "site") %>% 
+  distinct() %>%
+  left_join(df_IV, by = "site") %>% 
+  distinct() %>% 
+  left_join(df_V, by = c("site", "III.Threshold")) %>% 
+  distinct() %>% 
+  rename(`I.Site` = site) %>% 
+  #Rachel added/edited 10/2
+  mutate(V.Result_CSCI_FA_Mag = if_else(is.na(V.Result_CSCI_FA_Mag), "A probability of <Null> means no median delta FFM value is available.", as.character(V.Result_CSCI_FA_Mag))) %>% 
+  # can comment this line in or out depending on whether the -9999 is needed for ArcGIS
   #Rachel added/edited 9/29
   mutate(II.DeltaFFM_FA_Mag = if_else(is.na(II.DeltaFFM_FA_Mag), -9999, as.numeric(II.DeltaFFM_FA_Mag))) %>%
   mutate(IV.Prob_ASCI_Peak_2 = if_else(is.na(IV.Prob_ASCI_Peak_2), -9999, as.numeric(IV.Prob_ASCI_Peak_2))) %>%
-  mutate(IV.Prob_CSCI_FA_Mag = if_else(is.na(IV.Prob_CSCI_FA_Mag), -9999, as.numeric(IV.Prob_CSCI_FA_Mag))) %>%
-  mutate(IV.Prob_CSCI_Peak_10 = if_else(is.na(IV.Prob_CSCI_Peak_10), -9999, as.numeric(IV.Prob_CSCI_Peak_10))) %>%
-  mutate(V.Result_CSCI_FA_Mag = if_else(is.na(V.Result_CSCI_FA_Mag), "<Null>", as.character(V.Result_CSCI_FA_Mag))) 
-    
+  mutate(IV.Prob_CSCI_FA_Mag = if_else(is.na(IV.Prob_CSCI_FA_Mag), -9999, as.numeric(IV.Prob_CSCI_FA_Mag))) %>% 
+  mutate(IV.Prob_CSCI_Peak_10 = if_else(is.na(IV.Prob_CSCI_Peak_10), -9999, as.numeric(IV.Prob_CSCI_Peak_10))) %>% 
+  mutate(V.Result_CSCI_Peak_10 = if_else(V.Result_CSCI_Peak_10 == "A probability of NA indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", 
+         "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_CSCI_Peak_10))) %>% 
+  mutate(V.Result_ASCI_Peak_2 = if_else(V.Result_ASCI_Peak_2 == "A probability of NA indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", 
+                                         "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_ASCI_Peak_2)))
+  
+
+
 # write.csv(combined_dfs, "C:/Users/racheld/Downloads/SOC_prox_threshold_test.csv", row.names = FALSE)
 write.csv(combined_dfs, "output_data/Manuscript/SOC_RiskFramework_Data_Final.csv", row.names = FALSE)
 
+### paired with -9999 code 
+write.csv(combined_dfs_shp, "output_data/Manuscript/SOC_RiskFramework_Data_Final_forshapefile.csv", row.names = FALSE)
 
 ############################################################################
 # Shp file ----------------------------------------------------------------
 ### making shp file 
 #re-read in csv due to shpfile making problems 
-final_SOC <- read.csv("output_data/Manuscript/SOC_RiskFramework_Data_Final.csv")
+final_SOC <- read.csv("output_data/Manuscript/SOC_RiskFramework_Data_Final_forshapefile.csv")
 
 #ArcGIS truncates column names renaming so shpefile will write
 final_SOC <- final_SOC %>%

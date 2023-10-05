@@ -234,10 +234,10 @@ bio_h_summary <- bio_h_summary %>%
   mutate(comb_code = paste0( hydro.endpoints, "_", thresholds))
 
 ## upload GLMs and subset
-load(file = "models/01a_ASCI_negative_GLM_all_delta_mets_April2021.RData")
+load(file = "models/01a_ASCI_negative_GLM_all_delta_mets_July2023.RData")
 neg.glm <- neg.glm[ind1]
 # neg.glm
-load(file = "models/01a_ASCI_positive_GLM_all_delta_mets_April2021.RData")
+load(file = "models/01a_ASCI_positive_GLM_all_delta_mets_July2023.RData")
 pos.glm <- pos.glm[ind1]
 
 head(delta_long) ## new data to predict on
@@ -402,10 +402,10 @@ bio_h_summary <- bio_h_summary %>%
   mutate(comb_code = paste0(hydro.endpoints, "_", thresholds))
 
 ## upload GLMs and subset
-load(file = "models/01_CSCI_negative_GLM_all_delta_mets_April2021.RData")
+load(file = "models/01_CSCI_negative_GLM_all_delta_mets_July2023.RData")
 neg.glm <- neg.glm[ind1]
 # neg.glm 
-load(file = "models/01_CSCI_positive_GLM_all_delta_mets_April2021.RData")
+load(file = "models/01_CSCI_positive_GLM_all_delta_mets_July2023.RData")
 pos.glm <- pos.glm[ind1]
 
 head(delta_long) ## new data to predict on
@@ -422,7 +422,7 @@ cols <- c("comid", "comid_wy", "wayr", "WYT", "abs_FFM_median_cfs", "hydro", "Fl
 finalCSCI_df_RB9 <- data.frame(matrix(nrow=1, ncol = length(cols)))
 colnames(finalCSCI_df_RB9) <- cols
 
-# i=2
+i=4
 ## loop through metrics
 for(i in 1: length(metrics)) {
   
@@ -902,9 +902,9 @@ csci_wetbfl_50_stats_bad <- combined_metrics_index %>%
 clean <- combined_metrics_index %>%
   dplyr::select(-c(comid_wy, wayr, WYT, FlowMetric, Scenario, abs_FFM_median_cfs, hydro, PredictedProbability)) %>%
   rename(FlowMetric = hydro.endpoints, Index = index) %>%
-  mutate(IndexCode = paste(Index, FlowMetric, sep= "_")) %>% 
-  # mutate(PredictedProbabilityScaled = format(PredictedProbabilityScaled))
-  mutate(PredictedProbabilityScaled = if_else(is.na(PredictedProbabilityScaled), -9999, as.numeric(PredictedProbabilityScaled)))
+  mutate(IndexCode = paste(Index, FlowMetric, sep= "_")) #%>% 
+  # comment in our out depending on if needed for 
+  # mutate(PredictedProbabilityScaled = if_else(is.na(PredictedProbabilityScaled), -9999, as.numeric(PredictedProbabilityScaled)))
 
 write_csv(clean, "output_data/Manuscript/07b_predicted_probability_combined_CSCI_ASCI.csv")
 
