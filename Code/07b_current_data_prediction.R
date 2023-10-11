@@ -215,13 +215,22 @@ biol.endpoints<-c("H_ASCI","D_ASCI")#
 thresholds <- c(0.75, 0.86, 0.94) ## hybrid and diatom are the same
 
 ## make grid with all models 
-bio_h_summary <-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+# bio_h_summary <-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+bio_h_summary <- read.csv("output_data/01_asci_hydro_endpoints_order_July2023.csv") %>% 
+  mutate(hydro.endpoints = case_when(hydro.endpoints == "d_ds_mag_50" ~ "DS_Mag_50",                 #renamed all mag variables here and below
+                                     hydro.endpoints == "d_fa_mag" ~ "FA_Mag",
+                                     hydro.endpoints == "d_peak_10" ~ "Peak_10",
+                                     hydro.endpoints == "d_peak_2" ~ "Peak_2",
+                                     hydro.endpoints == "d_peak_5" ~ "Peak_5",
+                                     hydro.endpoints == "d_sp_mag" ~ "SP_Mag",
+                                     hydro.endpoints == "d_wet_bfl_mag_10" ~ "Wet_BFL_Mag_10",
+                                     hydro.endpoints == "d_wet_bfl_mag_50" ~ "Wet_BFL_Mag_50", 
+                                     hydro.endpoints == "delta_q99" ~ "Q99"))
 bio_h_summary
-
-#######################################################################
 
 ## reduce glms and summary df to only rows needed
 ## find index to remove
+# use "output_data/01_csci_hydro_endpoints_order_July2023.csv" to make table for mag metrics
 ind1 <- which(bio_h_summary$biol.endpoints == "H_ASCI" & bio_h_summary$thresholds == 0.86
               & bio_h_summary$hydro.endpoints %in% asci_metrics)
 
@@ -385,7 +394,18 @@ biol.endpoints<-c("CSCI","OoverE","MMI")
 csci_metrics <- c("DS_Mag_50", "Peak_10", "FA_Mag", "Wet_BFL_Mag_50") #edited by Rachel 9/7 - chosen for Katies portion of the deliverable
 
 ## make grid with all models 
-bio_h_summary<-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+# use "output_data/01_csci_hydro_endpoints_order_July2023.csv" to make table for mag metrics
+# bio_h_summary <-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+bio_h_summary <- read.csv("output_data/01_csci_hydro_endpoints_order_July2023.csv") %>% 
+  mutate(hydro.endpoints = case_when(hydro.endpoints == "d_ds_mag_50" ~ "DS_Mag_50",                 #renamed all mag variables here and below
+                                     hydro.endpoints == "d_fa_mag" ~ "FA_Mag",
+                                     hydro.endpoints == "d_peak_10" ~ "Peak_10",
+                                     hydro.endpoints == "d_peak_2" ~ "Peak_2",
+                                     hydro.endpoints == "d_peak_5" ~ "Peak_5",
+                                     hydro.endpoints == "d_sp_mag" ~ "SP_Mag",
+                                     hydro.endpoints == "d_wet_bfl_mag_10" ~ "Wet_BFL_Mag_10",
+                                     hydro.endpoints == "d_wet_bfl_mag_50" ~ "Wet_BFL_Mag_50", 
+                                     hydro.endpoints == "delta_q99" ~ "Q99"))
 bio_h_summary
 
 ## reduce glms and summary df to only rows needed
@@ -422,7 +442,7 @@ cols <- c("comid", "comid_wy", "wayr", "WYT", "abs_FFM_median_cfs", "hydro", "Fl
 finalCSCI_df_RB9 <- data.frame(matrix(nrow=1, ncol = length(cols)))
 colnames(finalCSCI_df_RB9) <- cols
 
-i=4
+# i=4
 ## loop through metrics
 for(i in 1: length(metrics)) {
   

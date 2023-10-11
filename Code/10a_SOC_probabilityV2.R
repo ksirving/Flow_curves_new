@@ -216,9 +216,8 @@ all_csci <- left_join(all_csci, labels, by ="Hydro_endpoint")
 ## thresholds
 # 
 # thresholds <- c(0.86) ## hybrid and diatom are the same
-asci_metrics <- c("Peak_2", "SP_Mag", "Wet_BFL_Mag_50", "DS_Mag_50",
-                  "DS_Dur_WS", "SP_Dur") ## edited by Rachel 9/27
-## add Q99 w new data ^
+asci_metrics <- c("Peak_2", "SP_Mag", "Wet_BFL_Mag_50", "DS_Mag_50") ## edited by Rachel 9/27 
+## add in loop with older data # DS_Dur_WS", "SP_Dur"
 
 #making bio_h_summary
 biol.endpoints<-c("H_ASCI","D_ASCI")#
@@ -231,7 +230,18 @@ hydro.endpoints<- unique(all_asci$Hydro_endpoint)
 thresholds <- c(0.75, 0.86, 0.94) ## hybrid and diatom are the same
 
 ## make grid with all models 
-bio_h_summary<-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+## use "output_data/01_csci_hydro_endpoints_order_July2023.csv" to make table for mag metrics
+# bio_h_summary <-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+bio_h_summary <- read.csv("output_data/01_asci_hydro_endpoints_order_July2023.csv") %>% 
+  mutate(hydro.endpoints = case_when(hydro.endpoints == "d_ds_mag_50" ~ "DS_Mag_50",                 #renamed all mag variables here and below
+                                     hydro.endpoints == "d_fa_mag" ~ "FA_Mag",
+                                     hydro.endpoints == "d_peak_10" ~ "Peak_10",
+                                     hydro.endpoints == "d_peak_2" ~ "Peak_2",
+                                     hydro.endpoints == "d_peak_5" ~ "Peak_5",
+                                     hydro.endpoints == "d_sp_mag" ~ "SP_Mag",
+                                     hydro.endpoints == "d_wet_bfl_mag_10" ~ "Wet_BFL_Mag_10",
+                                     hydro.endpoints == "d_wet_bfl_mag_50" ~ "Wet_BFL_Mag_50", 
+                                     hydro.endpoints == "delta_q99" ~ "Q99"))
 bio_h_summary
 
 ## reduce glms and summary df to only rows needed
@@ -267,7 +277,7 @@ cols <- c("site", "hydro.endpoints", "hydro", "Scenario", "FlowMetric",
 finalASCI_df <- data.frame(matrix(nrow=1, ncol = length(cols)))
 colnames(finalASCI_df) <- cols
 
-# i=4
+# i=6
 ## loop through metrics
 for(i in 1: length(metrics)) {
   
@@ -325,6 +335,14 @@ for(i in 1: length(metrics)) {
   posModCurrent <- predict(posMod, new_data_current_pos, type = "response")
   negModCurrent <- predict(negMod, new_data_current_neg, type = "response")
   
+  #test
+  # test_df <- as.data.frame(seq(1,100,5))
+  # colnames(test_df) <- "hydro"
+  # 
+  # posModCurrent <- predict(posMod, test_df, type = "response")
+  # 
+  # negModCurrent <- predict(negMod, test_df, type = "response")
+  
   
   ## add to dfs and scale
   ## current
@@ -380,11 +398,20 @@ hydro.endpoints
 thresholds <- c(0.63, 0.79, 0.92) 
 biol.endpoints<-c("CSCI","OoverE","MMI")
 
-csci_metrics <- c("DS_Mag_50", "Peak_10", "FA_Mag", "Wet_BFL_Mag_50", 
-                  "DS_Dur_WS", "SP_Tim") #edited by Rachel 9/27
+csci_metrics <- c("DS_Mag_50", "Peak_10", "FA_Mag", "Wet_BFL_Mag_50") #"DS_Dur_WS", "SP_Tim" edited by Rachel 9/27
 
 ## make grid with all models 
-bio_h_summary<-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+# bio_h_summary<-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+bio_h_summary <- read.csv("output_data/01_csci_hydro_endpoints_order_July2023.csv") %>% 
+  mutate(hydro.endpoints = case_when(hydro.endpoints == "d_ds_mag_50" ~ "DS_Mag_50",                 #renamed all mag variables here and below
+                                     hydro.endpoints == "d_fa_mag" ~ "FA_Mag",
+                                     hydro.endpoints == "d_peak_10" ~ "Peak_10",
+                                     hydro.endpoints == "d_peak_2" ~ "Peak_2",
+                                     hydro.endpoints == "d_peak_5" ~ "Peak_5",
+                                     hydro.endpoints == "d_sp_mag" ~ "SP_Mag",
+                                     hydro.endpoints == "d_wet_bfl_mag_10" ~ "Wet_BFL_Mag_10",
+                                     hydro.endpoints == "d_wet_bfl_mag_50" ~ "Wet_BFL_Mag_50", 
+                                     hydro.endpoints == "delta_q99" ~ "Q99"))
 bio_h_summary
 
 ## reduce glms and summary df to only rows needed
@@ -422,14 +449,18 @@ cols <- c("site", "hydro.endpoints", "hydro", "Scenario", "FlowMetric",
 finalCSCI_df <- data.frame(matrix(nrow=1, ncol = length(cols)))
 colnames(finalCSCI_df) <- cols
 
-# i=6
+# i=4
 ## loop through metrics
 for(i in 1: length(metrics)) {
   
   met <- metrics[i]
   
   hydroxx <- delta_long %>%
-    filter(hydro.endpoints == met)
+    filter(hydro.endpoints == met) %>% 
+    #testing 
+    mutate(DeltaH = case_when(DeltaH > 0 ~ DeltaH + 10,
+                              DeltaH < 0 ~ DeltaH + (-10), 
+                              T ~ as.numeric(DeltaH)))
   
   unique(hydroxx$FlowMetric)
   
@@ -442,7 +473,7 @@ for(i in 1: length(metrics)) {
     # pivot_wider(names_from = Scenario, values_from = DeltaH)
     rename(hydro =  DeltaH) %>%
     filter(Scenario == "Current",
-           !hydro < 0)
+           !hydro < 0) 
   
   new_data_current_neg <- hydroxx %>%
     # pivot_wider(names_from = Scenario, values_from = DeltaH)
@@ -479,11 +510,19 @@ for(i in 1: length(metrics)) {
     posModCurrent <- predict(posMod, new_data_current_pos, type = "response")
     negModCurrent <- predict(negMod, new_data_current_neg, type = "response")
     
+    #test
+    # test_df <- as.data.frame(seq(1,100,5))     
+    # colnames(test_df) <- "hydro"
+    # 
+    # posModCurrent <- predict(posMod, all_csci_July2023, type = "response")
+    # # 
+    # negModCurrent <- predict(negMod, all_csci_July2023, type = "response")
     
     ## add to dfs and scale
     ## current
     new_data_current_pos <-  new_data_current_pos %>%
       mutate(PredictedProbability = posModCurrent) %>%
+      # mutate(PredictedProbability = round(PredictedProbability, digits = 2)) %>%
       mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
                (max(PredictedProbability)-min(PredictedProbability)))# %>%
     # mutate(CurrentDeltaNorm = (hydro-min(hydro))/
@@ -526,6 +565,9 @@ finalCSCI_df <- finalCSCI_df %>%
 
 #### write to CSV
 write.csv(finalCSCI_df, file = "output_data/Manuscript/10a_SOC_CSCI_prob.csv")
+
+# Tim, Dur
+# Use old GLMs and old bio_h_summary table from SOC repo
 
 #################################################################
 # Combine CSCi and ASCI into one df 

@@ -35,7 +35,7 @@ thresholds <- c(0.75, 0.86, 0.94) ## hybrid and diatom are the same
 bio_h_summary<-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
 bio_h_summary
 
-write.csv(bio_h_summary, "output_data/01_asci_hydro_endpoints_order_July2023.csv")
+write.csv(bio_h_summary, "output_data/01_asci_hydro_endpoints_order_July2023.csv") #RB9
 i=1
 neg.glm<-lapply(1:nrow(bio_h_summary), function(i)
 {
