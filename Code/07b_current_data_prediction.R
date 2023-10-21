@@ -318,51 +318,8 @@ for(i in 1: length(metrics)) {
   CurrentProbsASCI <- CurrentProbsASCI %>%
     transmute(comid, comid_wy, wayr, WYT, abs_FFM_median_cfs, hydro, FlowMetric, Scenario, hydro.endpoints, PredictedProbability, PredictedProbabilityScaled, 
               index = "ASCI")
-  ## add water year type
-  # CurrentProbsASCI <- right_join(CurrentProbs, wyt_df, by = "wayr")  ##### don't need this line 
   
-  ## calculate median per site per wyt
-  # CurrentProbsMedASCI <-   CurrentProbsASCI %>%
-  #   group_by(comid, hydro.endpoints) %>%  # removed: , wyt
-  #   summarise(MedProb = median(PredictedProbabilityScaled), 
-  #             MedDelta = median(hydro)) %>%
-  #   mutate(Scenario = "Current")
-  
-  # ## combine historical and current
-  # 
-  # AllProbs <- bind_rows(HistProbsMed, CurrentProbsMed)
-  # names(AllProbs)
-  # 
-  # AllDelta <- AllProbs %>%
-  #   select(-MedProb) %>%
-  #   # group_by(comid, IDs, hydro.endpoints)
-  #   pivot_wider(names_from = "Scenario", values_from = "MedDelta") %>%
-  #   mutate(RelChangeDelta = (Current-Historical)/Historical) %>%
-  #   mutate(AbsChangeDelta = (Current-Historical)) 
-  # 
-  # AllProbs <- AllProbs %>%
-  #   select(-MedDelta) %>%
-  #   # mutate(PredictedProbabilityScaled = ifelse(PredictedProbabilityScaled == 0, 0.00001, PredictedProbabilityScaled)) %>%
-  #   pivot_wider(names_from = "Scenario", values_from = "MedProb") %>%
-  #   mutate(RelChange = (Current-Historical)/Historical) %>%
-  #   mutate(AbsChange = (Current-Historical)) 
-  
-  
-  # AllProbsMed <- AllProbs %>%
-  #   group_by(comid, IDs, hydro.endpoints) %>%
-  #   summarise(MedChange = median(RelChange))
-  
-  ## save
-  # save(AllDelta, file = paste0("output_data/01_asci_rel_change_in_delta_", met, ".RData"))
-  # save(AllProbs, file = paste0("output_data/01_asci_rel_change_in_prob_", met, ".RData"))
-  # save(AllProbsMed, file = paste0("output_data/01_asci_median_rel_change_in_prob_", met, ".RData"))
-  
-  # save(CurrentProbsASCI, file = paste0("output_data/07a_asci_prob_", met, ".RData"))
-  # # save(CurrentProbsMedASCI, file = paste0("output_data/07a_asci_median_prob_", met, ".RData"))
-  # 
-  # write_csv(CurrentProbsASCI, file = paste0("output_data/07a_asci_prob_", met, ".csv"))
-  # write_csv(CurrentProbsMedASCI, file = paste0("output_data/07a_asci_median_prob_", met, ".csv"))
-  
+  # combine
   finalASCI_df_RB9 <- finalASCI_df_RB9 %>%
     bind_rows(CurrentProbsASCI)
   
@@ -498,53 +455,8 @@ for(i in 1: length(metrics)) {
   CurrentProbsCSCI <- CurrentProbsCSCI %>%
     transmute(comid, comid_wy, wayr, WYT, abs_FFM_median_cfs, hydro, FlowMetric, Scenario, hydro.endpoints, PredictedProbability, PredictedProbabilityScaled, 
               index = "CSCI")
-  ## add water year type
-  # CurrentProbsCSCI <- right_join(CurrentProbs, wyt_df, by = "wayr")
   
-  
-  ############ don't need anymore ######
-  ## calculate median per site per wyt
-  # CurrentProbsMedCSCI <-   CurrentProbsCSCI %>%
-  #   group_by(comid, hydro.endpoints) %>%          ### removed wy
-  #   summarise(MedProb = median(PredictedProbabilityScaled), 
-  #             MedDelta = median(hydro)) %>%
-  #   mutate(Scenario = "Current")
-  
-  ## combine historical and current
-  
-  # AllProbs <- bind_rows(HistProbsMed, CurrentProbsMed)
-  # names(AllProbs)
-  # 
-  # AllDelta <- AllProbs %>%
-  #   select(-MedProb) %>%
-  #   # group_by(comid, IDs, hydro.endpoints)
-  #   pivot_wider(names_from = "Scenario", values_from = "MedDelta") %>%
-  #   mutate(RelChangeDelta = (Current-Historical)/Historical) %>%
-  #   mutate(AbsChangeDelta = (Current-Historical)) 
-  # 
-  # AllProbs <- AllProbs %>%
-  #   select(-MedDelta) %>%
-  #   # mutate(PredictedProbabilityScaled = ifelse(PredictedProbabilityScaled == 0, 0.00001, PredictedProbabilityScaled)) %>%
-  #   pivot_wider(names_from = "Scenario", values_from = "MedProb") %>%
-  #   mutate(RelChange = (Current-Historical)/Historical) %>%
-  #   mutate(AbsChange = (Current-Historical)) 
-  # 
-  
-  # AllProbsMed <- AllProbs %>%
-  #   group_by(comid, IDs, hydro.endpoints) %>%
-  #   summarise(MedChange = median(RelChange))
-  
-  ## save
-  # save(AllDelta, file = paste0("output_data/01_csci_rel_change_in_delta_", met, ".RData"))
-  # save(AllProbs, file = paste0("output_data/01_csci_rel_change_in_prob_", met, ".RData"))
-  # save(AllProbsMed, file = paste0("output_data/01_csci_median_rel_change_in_prob_", met, ".RData"))
-  
-  # save(CurrentProbsCSCI, file = paste0("output_data/07a_csci_prob_", met, ".RData"))
-  # # save(CurrentProbsMedCSCI, file = paste0("output_data/07a_csci_median_prob_", met, ".RData"))
-  # 
-  # write_csv(CurrentProbsCSCI, file = paste0("output_data/07a_csci_prob_", met, ".csv"))
-  # write_csv(CurrentProbsMedCSCI, file = paste0("output_data/07a_csci_median_prob_", met, ".csv"))
-  
+  # combine
   finalCSCI_df_RB9 <- finalCSCI_df_RB9 %>%
     bind_rows(CurrentProbsCSCI)
   
@@ -577,24 +489,6 @@ comb <- ASCI %>%
 
 write.csv(comb, file = "output_data/Manuscript/07b_predicted_probability.csv", row.names = FALSE)
 
-
-## For Katie 
-# combine datasets for maps
-# asci_q99 <- read_csv("C:/Users/racheld/OneDrive - SCCWRP/Documents/GitHub/RB9_vulnerability_V2/output_data/07a_asci_prob_Q99.csv")
-# asci_ds_mag_50 <- read_csv("C:/Users/racheld/OneDrive - SCCWRP/Documents/GitHub/RB9_vulnerability_V2/output_data/07a_asci_prob_DS_Mag_50.csv")
-#   
-# csci_q99 <- read_csv("C:/Users/racheld/OneDrive - SCCWRP/Documents/GitHub/RB9_vulnerability_V2/output_data/07a_csci_prob_Q99.csv")
-# csci_bfl_mag_10 <- read_csv("C:/Users/racheld/OneDrive - SCCWRP/Documents/GitHub/RB9_vulnerability_V2/output_data/07a_csci_prob_Wet_BFL_Mag_10.csv")
-# 
-# combined_metrics_index <- asci_q99 %>%
-#   bind_rows(asci_ds_mag_50) %>%
-#   bind_rows(csci_q99) %>%
-#   bind_rows(csci_bfl_mag_10) %>%
-#   rename(COMID = comid)
-
-# write_csv(combined_metrics_index, "output_data/07a_predicted_probability.csv")
-
-
 ###########################################################################
 # Maps --------------------------------------------------------------------
 ###########################################################################
@@ -624,25 +518,6 @@ SynthNHD <- calinhd %>%
   dplyr::select(COMID) %>% ## 46
   as('Spatial') %>% 
   st_as_sf(coords = c("long", "lat"), remove = FALSE)
-
-# nhdplo <- SynthNHD %>%
-#   fortify %>%
-#   # left_join(comidid, by = 'id') %>%
-#   full_join(synthesis.summary, by = 'COMID')
-
-## Create bio-relevant flow alteration CSCI and ASCI maps 
-# for appropriate prob and biol threshold combos, altered dependent on mdeian, altered 1 or 2 metrics
-
-# set colors for alteration categories used in legend and maps
-# set colors for alteration categories used in legend and maps
-# colors <- c("#ca0020", "#0571b0", "white")
-# alteration <- c("Altered",  "Unaltered", NA)
-# categories <- c("Likely Altered", "Likely Unaltered", "Not evaluated")
-# # lookup table used for legend and maps
-# lookup <- data.frame(cbind(colors, alteration, categories))
-# 
-# # create title for plot (metric threshold)
-# metric.threshold <- "2 Metric Altered Threshold"
 
 # adding names of metrics for plots 
 names <- limits %>%
@@ -681,11 +556,6 @@ for(z in met_ind){
   
   iteration <- grep(z, met_ind)
   metric_z <- names[iteration]
-  
-  # for(i in metrics){
-  #   # # set probability threshold label
-  #   # # prob <- "Probability Threshold at 25%"
-  #   subset.index.metrics <- subset.index[subset.index$hydro.endpoints == i,]
     
     # merge with comids to get spatial data for map
     subset.join <- subset.index %>% 
@@ -751,7 +621,7 @@ for(z in met_ind){
     print(syn.plot)
     
     # write plot
-    out.filename <- paste0("output_data/Manuscript/Figures/Maps/07b_", z, "_predicted_prob_Current_updated_09222023.jpg") 
+    out.filename <- paste0("output_data/Manuscript/Figures/Maps/07b_", z, "_predicted_prob_Current_updated_10162023.jpg") 
     ggsave(syn.plot, file = out.filename, dpi=300, height=4, width=6)
     
   # }
@@ -767,23 +637,19 @@ for(z in met_ind){
 ascipeak2_stats <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled >= 0.70 & hydro.endpoints == "Peak_2") %>%
   distinct()
-## 422 comids 
-422/2116 *100 ## 19.94329 %
 
 # after NA's introduced 
-#340 comids
-340/2116 *100 ## 16.06805 %
+#1329 comids
+1329/2116 *100 ## 62.80718 %
 
 ## bad q99 < 0.7
 ascipeak2_stats_bad <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "Peak_2") %>%
   distinct()
-##  comids 
-1694/2116 *100  ## 80.05671 %
 
 # after NA's introduced 
-#1315 comids
-1315/2116 *100 ## 62.14556 %
+#326 comids
+326/2116 *100 ## 15.40643 %
 
 #######################
 
@@ -794,14 +660,14 @@ ascisp_mag_stats <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled >= 0.70 & hydro.endpoints == "SP_Mag") %>%
   distinct()
 ##  comids 
-52/2116 *100 ## 2.457467 %
+2074/2116 *100 ## 98.01512 %
 
 ## bad q99 < 0.7
 ascisp_mag_stats_bad <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "SP_Mag") %>%
   distinct()
 ##  comids 
-2064/2116 *100  ## 97.54253 %
+42/2116 *100  ## 1.984877 %
 
 #######################
 
@@ -812,14 +678,14 @@ asci_wetbfl_50_stats <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled >= 0.70 & hydro.endpoints == "Wet_BFL_Mag_50") %>%
   distinct()
 ##  comids 
-1919/2116 *100 ## 90.68998 %
+1918/2116 *100 ## 90.64272 %
 
 ## bad q99 < 0.7
 asci_wetbfl_50_stats_bad <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "Wet_BFL_Mag_50") %>%
   distinct()
 ##  comids 
-197/2116 *100  ## 9.310019 %
+198/2116 *100  ## 9.357278 %
 
 #######################
 
@@ -830,14 +696,14 @@ asci_dm_50_stats <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled >= 0.70 & hydro.endpoints == "DS_Mag_50") %>%
   distinct()
 ##  comids 
-2054/2116 *100 ## 97.06994 %
+2012/2116 *100 ## 95.08507 %
 
 ## bad q99 < 0.7
 asci_dm_50_stats_bad <- combined_metrics_index %>%
   filter(index == "ASCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "DS_Mag_50") %>%
   distinct()
 ##  comids 
-62/2116 *100  ## 2.930057 %
+104/2116 *100  ## 4.914934 %
 
 #####################################################################################################
 #####################################################################################################
@@ -849,53 +715,47 @@ asci_dm_50_stats_bad <- combined_metrics_index %>%
 csci_dm_50_stats <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled >= 0.70 & hydro.endpoints == "DS_Mag_50") %>%
   distinct()
-## 2074 comids 
-2074/2116 *100  ## 98.01512 %
+## 1755 comids 
+1755/2116 *100  ## 82.93951 %
 
 ## bad q99 < 0.5
 csci_dm_50_stats_bad <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "DS_Mag_50") %>%
   distinct()
-## 42 comids 
-42/2116 * 100 ## 1.984877 %
+## 361 comids 
+361/2116 * 100 ## 17.06049 %
 
 # Peak_10 ---------------------------------------------------------------
 ## ## greater than or = to 0.7 or 70% of good score ------ changed this from 50%
 csci_p10_stats <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled >= 0.70 & hydro.endpoints == "Peak_10") %>%
   distinct()
-## 424 comids 
-424/2116 *100  ## 20.03781 %
-
 # after NA's introduced 
-#326 comids
-326/2116 *100 ## 15.40643 %
+## 881 comids 
+881/2116 *100  ## 41.63516 %
 
 ## bad q99 < 0.5
 csci_p10_stats_bad <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "Peak_10") %>%
   distinct()
-## 1692 comids 
-1692/2116 * 100 ## 79.96219 %
-
 # after NA's introduced 
-#681 comids
-681/2116 *100 ## 32.18336 %
+## 126 comids 
+126/2116 * 100 ## 5.954631 %
 
 # FA_Mag ---------------------------------------------------------------
 ## ## greater than or = to 0.7 or 70% of good score ------ changed this from 50%
 csci_FAMag_stats <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled >= 0.70 & hydro.endpoints == "FA_Mag") %>%
   distinct()
-## 36 comids 
-36/2116 *100  ## 1.701323 %
+## 1640 comids 
+1640/2116 *100  ## 77.50473 %
 
 ## bad q99 < 0.5
 csci_FAMag_stats_bad <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "FA_Mag") %>%
   distinct()
-## 2080 comids 
-2080/2116 * 100 ## 98.29868 %
+## 476 comids 
+476/2116 * 100 ## 22.49527 %
 
 # Wet_BFL_Mag_50 ---------------------------------------------------------------
 ## ## greater than or = to 0.7 or 70% of good score ------ changed this from 50%
@@ -903,150 +763,44 @@ csci_wetbfl_50_stats <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled >= 0.70 & hydro.endpoints == "Wet_BFL_Mag_50") %>%
   distinct()
 ##  comids 
-1868/2116 *100  ## 88.27977 %
+1846/2116 *100  ## 87.24008 %
 
 ## bad q99 < 0.5
 csci_wetbfl_50_stats_bad <- combined_metrics_index %>%
   filter(index == "CSCI" & PredictedProbabilityScaled < 0.70 & hydro.endpoints == "Wet_BFL_Mag_50") %>%
   distinct()
 ##  comids 
-248/2116 * 100 ## 11.72023 %
-
-
+270/2116 * 100 ## 12.75992 %
 
 
 ####################################################################################################
 # Deliverable submission ---------------------------------------------------------------------------
 ## clean file for deliverable (based on file created in section before maps are made)
 ## this is the clean CSV added to the deliverable readme 
+
+#### FOR SHAPEFILE 
 clean <- combined_metrics_index %>%
   dplyr::select(-c(comid_wy, wayr, WYT, FlowMetric, Scenario, abs_FFM_median_cfs, hydro, PredictedProbability)) %>%
   rename(FlowMetric = hydro.endpoints, Index = index) %>%
-  mutate(IndexCode = paste(Index, FlowMetric, sep= "_")) #%>% 
-  # comment in our out depending on if needed for 
-  # mutate(PredictedProbabilityScaled = if_else(is.na(PredictedProbabilityScaled), -9999, as.numeric(PredictedProbabilityScaled)))
-
-write_csv(clean, "output_data/Manuscript/07b_predicted_probability_combined_CSCI_ASCI.csv")
+  mutate(IndexCode = paste(Index, FlowMetric, sep= "_")) %>% 
+  # comment in our out depending on if needed for ArcGIS Files
+  mutate(PredictedProbabilityScaled = if_else(is.na(PredictedProbabilityScaled), -9999, as.numeric(PredictedProbabilityScaled)))
 
 #### create shape file of clean data set for deliverabl by joing shapefile from map code to the clean data
 deliverable_shp_file <-  clean %>%
   full_join(SynthNHD, by = "COMID")
 
 ## write out the shapefile
-sf::st_write(deliverable_shp_file, "output_data/Manuscript/Shapefiles/07b_predicted_probability_combined_CSCI_ASCI.shp", 
+sf::st_write(deliverable_shp_file, "output_data/Manuscript/Shapefiles/RB9_predicted_probability_combined_CSCI_ASCI.shp", 
          driver = "ESRI Shapefile")
 
-############################## QA test ######
-# load(file = "models/01a_ASCI_negative_GLM_all_delta_mets_April2021.RData")
-# neg.glm <- neg.glm[ind1]
-# neg.glm
-# 
-# load(file = "models/01a_ASCI_positive_GLM_all_delta_mets_April2021.RData")
-# pos.glm <- pos.glm[ind1]
-# pos.glm
-# 
-# #
-# load(file = "models/01_CSCI_negative_GLM_all_delta_mets_April2021.RData")
-# neg.glm <- neg.glm[ind1]
-# neg.glm 
-# load(file = "models/01_CSCI_positive_GLM_all_delta_mets_April2021.RData")
-# pos.glm <- pos.glm[ind1]
-# pos.glm
-# 
-# i = 70
-# 
-# # negMod <- neg.glm[i][[1]]
-# 
-# hydroxx <- delta_long %>%
-#   filter(hydro.endpoints == met)
-# # hydroxx <- "q99"
-# unique(hydroxx$FlowMetric)
-# 
-# ## get models for pos and neg
-# posMod <- pos.glm[i][[1]]
-# negMod <- neg.glm[i][[1]]
-# negMod$data
-# posMod$data
-# ## rename to match models, separate scenarios and delta positive and negative
-# new_data_current_pos <- hydroxx %>%
-#   # pivot_wider(names_from = Scenario, values_from = DeltaH)
-#   rename(hydro =  DeltaH) %>%
-#   filter(Scenario == "Current",
-#          !hydro < 0)
-# 
-# negModCurrent <- predict(negMod, new_data_current_pos, type = "response")
+# Final CSV ---------------------------------------------------------------
+#### FOR CSV
+clean <- combined_metrics_index %>%
+  dplyr::select(-c(comid_wy, wayr, WYT, FlowMetric, Scenario, abs_FFM_median_cfs, hydro, PredictedProbability)) %>%
+  rename(FlowMetric = hydro.endpoints, Index = index) %>%
+  mutate(IndexCode = paste(Index, FlowMetric, sep= "_")) #%>% 
+  # comment in our out depending on if needed for ArcGIS Files
+  # mutate(PredictedProbabilityScaled = if_else(is.na(PredictedProbabilityScaled), -9999, as.numeric(PredictedProbabilityScaled)))
 
-# Old code  
-# #######################################################################################################################
-# #######################################################################################################################
-# #######################################################################################################################
-# #######################################################################################################################
-# ##old loop
-# ## Loop through CSCI and ASCI thresholds and metrics
-# indices <- c("ASCI", "CSCI")
-# metrics <- c("Q99", "DS_Mag_50", "Wet_BFL_Mag_10")
-# # i = "Q99"
-# # z = "ASCI"
-# for(z in indices){
-#   #subset either csci or asci
-#   subset.index <- subset[subset$index == z,]
-#   subset.index
-#   
-#   for(i in metrics){
-#     # # set probability threshold label
-#     # # prob <- "Probability Threshold at 25%"
-#     subset.index.metrics <- subset.index[subset.index$hydro.endpoints == i,]
-#     
-#     # merge with comids to get spatial data for map
-#     subset.join <- subset.index.metrics %>% 
-#       full_join(SynthNHD, by = c('COMID'))
-#     subset.join
-#     # set title and subtitle
-#     title <- paste0(z)
-#     subtitle <- paste("Predicted Probability", i, sep = "\n") 
-#     
-#     ## Plot
-#     # Set up base map 
-#     study <- ggplot(SynthNHD) + 
-#       geom_sf(color = "lightgrey", fill="white") +
-#       labs(title=title, subtitle = subtitle, x ="", y = "")  + 
-#       annotation_scale() +
-#       annotation_north_arrow(pad_y = unit(0.9, "cm"),  height = unit(.8, "cm"),
-#                              width = unit(.8, "cm")) +
-#       theme(panel.background = element_rect(fill = "white"),
-#             axis.ticks = element_blank(),
-#             axis.text = element_blank(),
-#             panel.grid = element_line(color = "white", size = 0.8),
-#             plot.title = element_text(size=20)) 
-#     #print map
-#     study
-#     
-#     # subset lookup categories and tables
-#     
-#     # lookup.sub <- lookup[lookup$alteration %in% unique(subset.join$`Alteration - Biology`),]
-#     # 
-#     # # save as factor to sort categories in legend
-#     # lookup.sub$alteration <- factor(lookup.sub$alteration, levels = unique(lookup.sub$alteration))
-#     # subset.join$`Alteration - Biology` <- factor(subset.join$`Alteration - Biology`, levels = unique(lookup.sub$alteration))
-#     # 
-#     
-#     # synthesis map for bio index z
-#     syn.plot <- study + geom_sf(data = subset.join, aes(color= PredictedProbabilityScaled, geometry = geometry)) +
-#       scale_color_distiller(palette = "Spectral", direction = 1)
-#       # scale_color_viridis_c(option = "A") 
-#     
-#     # print
-#     print(syn.plot)
-#     
-#     # write plot
-#     out.filename <- paste0("figures/maps/07a_", z, "_", i, "_predicted_prob_Current.jpg") 
-#     ggsave(syn.plot, file = out.filename, dpi=300, height=4, width=6)
-#     
-#   }
-# }
-
-
-
-
-
-
+write_csv(clean, "output_data/Manuscript/RB9_predicted_probability_combined_CSCI_ASCI.csv")

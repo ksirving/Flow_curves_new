@@ -265,17 +265,7 @@ relative_alteration_edited <- relative_alteration %>%
   pivot_wider(names_from = metric, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_") %>% 
   dplyr::select(-c(II.Rel_Alt_ds_mag_50, II.Rel_Alt_peak_2, II.Rel_Alt_sp_mag, II.Rel_Alt_wet_bfl_mag_50, II.Rel_Alt_fa_mag, II.Rel_Alt_peak_10)) %>% 
   right_join(to_edit, by = c('comid' = 'I.COMID')) %>%
-  rename(`I.COMID` = comid) %>% 
-  # edited by Rachel 10/2 - adding NAs instead of "Null" for the CSV - comment in or out if needed
-  mutate(V.Result_ASCI_peak_2 = if_else(V.Result_ASCI_peak_2 == "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", 
-                                        "A probability of NA indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_ASCI_peak_2))) %>% 
-  mutate(V.Result_CSCI_peak_10 = if_else(V.Result_CSCI_peak_10 == "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", 
-                                        "A probability of NA indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_CSCI_peak_10)))
-#%>% 
-# comment in and out as needed - comment back in if needed for the ArcGIS Files 
-  # mutate(IV.Prob_ASCI_peak_2 = if_else(is.na(IV.Prob_ASCI_peak_2), -9999, as.numeric(IV.Prob_ASCI_peak_2))) %>% 
-  # mutate(IV.Prob_CSCI_peak_10 = if_else(is.na(IV.Prob_CSCI_peak_10), -9999, as.numeric(IV.Prob_CSCI_peak_10))) %>% 
-  # mutate(IV.Prob_Toad_Mean = if_else(is.na(IV.Prob_Toad_Mean), -9999, as.numeric(IV.Prob_Toad_Mean))) 
+  rename(`I.COMID` = comid)
 
 relative_alteration_edited_order = c("I.COMID", "II.Rel_Alt_ds_mag_50", "II.Rel_Alt_peak_2", "II.Rel_Alt_sp_mag", "II.Rel_Alt_wet_bfl_mag_50", 
                                      "II.Rel_Alt_fa_mag", "II.Rel_Alt_peak_10", "II.Rel_Alt_peak_5", "II.Rel_Alt_wet_bfl_mag_10", "II.Rel_Alt_q99",
@@ -287,10 +277,24 @@ relative_alteration_edited_order = c("I.COMID", "II.Rel_Alt_ds_mag_50", "II.Rel_
 ## the actual final, finished product that goes into making the shp file  
 relative_alteration_edited <-  relative_alteration_edited[, relative_alteration_edited_order]
 
-write.csv(relative_alteration_edited, "output_data/Manuscript/RiskFramework_Data_Final.csv", row.names=FALSE)
 
+# For CSV -----------------------------------------------------------------
+relative_alteration_edited_forCSV <- relative_alteration %>% 
+  dplyr::select(comid, metric, Relative_Alteration) %>% 
+  pivot_wider(names_from = metric, values_from = Relative_Alteration, names_prefix = "II.Rel_Alt_") %>% 
+  dplyr::select(-c(II.Rel_Alt_ds_mag_50, II.Rel_Alt_peak_2, II.Rel_Alt_sp_mag, II.Rel_Alt_wet_bfl_mag_50, II.Rel_Alt_fa_mag, II.Rel_Alt_peak_10)) %>% 
+  right_join(to_edit, by = c('comid' = 'I.COMID')) %>%
+  rename(`I.COMID` = comid) %>% 
+  # edited by Rachel 10/2 - adding NAs instead of "Null" for the CSV - comment in or out if needed
+  mutate(V.Result_ASCI_peak_2 = if_else(V.Result_ASCI_peak_2 == "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.",
+                                        "A probability of NA indicates augmented peak metric. Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_ASCI_peak_2))) %>%
+  mutate(V.Result_CSCI_peak_10 = if_else(V.Result_CSCI_peak_10 == "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.",
+                                        "A probability of NA indicates augmented peak metric. Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_CSCI_peak_10))) #%>%
+  
+## the actual final, finished product that goes into making the csv
+relative_alteration_edited_forCSV <-  relative_alteration_edited_forCSV[, relative_alteration_edited_order]
 
- 
+write.csv(relative_alteration_edited_forCSV, "output_data/Manuscript/RiskFramework_Data_Final.csv", row.names=FALSE)
 
 # Shp file ----------------------------------------------------------------
 ### making shp file 
@@ -304,7 +308,18 @@ relative_alteration_edited <- relative_alteration_edited %>%
          "Prob_Thresh" = "III.Probability_Threshold", "PbASCIDM50" = "IV.Prob_ASCI_ds_mag_50", "PbASCIP2" = "IV.Prob_ASCI_peak_2", "PbASCISpMg" = "IV.Prob_ASCI_sp_mag", 
          "PbASCIBFL50" = "IV.Prob_ASCI_wet_bfl_mag_50", "PbCSCIDM50" = "IV.Prob_CSCI_ds_mag_50", "PbCSCIFMg" = "IV.Prob_CSCI_fa_mag", "PbCSCIP10" = "IV.Prob_CSCI_peak_10", "PbCSCIBFL50" = "IV.Prob_CSCI_wet_bfl_mag_50", 
          "ProbToadMn" = "IV.Prob_Toad_Mean", "ResADM50" = "V.Result_ASCI_ds_mag_50", "ResASCIP2" = "V.Result_ASCI_peak_2", "ResASCISMag" = "V.Result_ASCI_sp_mag", "ResASCIBFL50" = "V.Result_ASCI_wet_bfl_mag_50", 
-         "ResCSCIDM50" = "V.Result_CSCI_ds_mag_50", "ResCSCIFMag" = "V.Result_CSCI_fa_mag", "ResCSCIP10" = "V.Result_CSCI_peak_10", "ResCSCIBFL50" = "V.Result_CSCI_wet_bfl_mag_50")
+         "ResCSCIDM50" = "V.Result_CSCI_ds_mag_50", "ResCSCIFMag" = "V.Result_CSCI_fa_mag", "ResCSCIP10" = "V.Result_CSCI_peak_10", "ResCSCIBFL50" = "V.Result_CSCI_wet_bfl_mag_50") %>% 
+  # for shpfile pnly !!!!!!!!!!!!!!
+  mutate(PbASCIP2 = if_else(is.na(PbASCIP2), -9999, as.numeric(PbASCIP2))) %>%
+  mutate(PbCSCIP10 = if_else(is.na(PbCSCIP10), -9999, as.numeric(PbCSCIP10))) %>%
+  mutate(ProbToadMn = if_else(is.na(ProbToadMn), -9999, as.numeric(ProbToadMn))) 
+
+
+  # have to undo the edits made earlier for the CSV
+relative_alteration_edited <- relative_alteration_edited %>% 
+  mutate(ResASCIP2 = if_else(PbASCIP2 == -9999, "A probability of <Null> indicates augmented peak metric. Not enough data for flow ecology curve peak augmentation.", as.character(ResASCIP2))) %>%
+  mutate(ResCSCIP10 = if_else(PbCSCIP10 == -9999, "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", as.character(ResCSCIP10)))
+
 
 ## projection
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"

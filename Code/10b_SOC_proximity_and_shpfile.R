@@ -20,13 +20,37 @@ library(raster)
 library(maptools)
 library(rgdal)
 
-
-
 ### read in look up table of FFMs and thresholds 
 lookup_table <- read_csv("output_data/Manuscript/10_SOC_ALL_delta_thresholds_scaled.csv")
 
+### reading in delta long from script 10a for df_II
+delta_long_SOC_data <- read.csv("ignore/10a_SOC_delta_h_long.csv") %>% 
+  dplyr::select(-c(X, FlowMetric)) 
+
 ### read in current predicted probabilities 
-current_predicted_prob <- read_csv("output_data/10a_SOC_predicted_probability_ASCIandCSCI.csv")
+#### Edited 10/20
+### Quick and ugly editing of the df. It was decided that some metrics would be plotted with scaled values and 
+# some with unscaled values as follows: ASCI: DS_Dur_WS & SP_Dur ; CSCI DS_Dur_WS = scaled - the rest unscaled 
+# Editing this so that all columns say "Predicted probability scaled" even when they are not for ease of re-running 
+# the code below as it was written. The filters can be changed as metrics change 
+current_predicted_prob_all <- read_csv("output_data/Manuscript/10a_SOC_predicted_probability_ASCIandCSCI.csv")
+
+# scaled metrics -> ASCI: DS_Dur_WS & SP_Dur ; CSCI DS_Dur_WS
+current_predicted_df_scaled <- current_predicted_prob_all %>% 
+  filter(hydro.endpoints %in% c("DS_Dur_WS", "SP_Dur")) %>% 
+  dplyr::select(-PredictedProbability)
+
+# UNSCALED but renaming the unscaled column to PredictedProbScaled for ease of running the code below 
+# (I apologize for doing it this way) 
+current_predicted_df_UNscaled <- current_predicted_prob_all %>% 
+  filter(!hydro.endpoints %in% c("DS_Dur_WS", "SP_Dur")) %>% 
+  dplyr::select(-PredictedProbabilityScaled) %>%
+  # renaming just for the sake of not having to edit all the dfs I make below (this is not actually the scaled column)
+  rename(PredictedProbabilityScaled = PredictedProbability)
+
+### FINAL DF TO USE IN THE CODE BELOW 
+current_predicted_prob <- current_predicted_df_scaled %>% 
+  bind_rows(current_predicted_df_UNscaled)
 
 # create lookup table 
 lookuptable <- lookup_table %>%
@@ -57,7 +81,7 @@ proximity_df <- current_pred_prob %>%
   mutate(Classification = case_when(hydro <= Positive & hydro >= Negative ~ "Within",
                                     hydro > Positive ~ "Augmented",
                                     hydro < Negative ~ "Depleted", 
-                                    is.na(PredictedProbability) ~ "Indeterminant",
+                                    is.na(PredictedProbabilityScaled) ~ "Indeterminant",
                                     T ~ "Bad")) %>%
   mutate(Prox_Positive = Positive - hydro) %>%
   mutate(Prox_Negative = Negative - hydro) %>%
@@ -128,20 +152,21 @@ formatting_final_dfv2 <- final_dfv2 %>%
 # write.csv(formatting_final_dfv2, "C:/Users/racheld/Downloads/SOC_prox_threshold.csv", row.names = FALSE)
 
 ## df for II
-df_II <- formatting_final_dfv2 %>% 
-  dplyr:: select(c(site, hydro, Hydro_endpoint)) %>%  
+df_II <- delta_long_SOC_data %>% 
+  dplyr:: select(c(site, DeltaH, hydro.endpoints)) %>%  #, index
   distinct() %>% 
-  pivot_wider(names_from = Hydro_endpoint, values_from = hydro, names_prefix = "II.DeltaFFM_") 
+  pivot_wider(names_from = hydro.endpoints, values_from = DeltaH, names_prefix = "II.DeltaFFM_") 
 
 # df for III
 df_III <- formatting_final_dfv2 %>% 
   dplyr:: select(c(site, Threshold)) %>% 
   mutate(`III.Threshold` = case_when(
-            Threshold == "Threshold70" ~ "0.70", 
-            Threshold == "Threshold90" ~ "0.90",
-            Threshold == "Threshold99" ~ "0.99", 
-            TRUE ~ "1")) %>% 
+    Threshold == "Threshold70" ~ "0.70", 
+    Threshold == "Threshold90" ~ "0.90",
+    Threshold == "Threshold99" ~ "0.99", 
+    TRUE ~ "1")) %>% 
   dplyr::select(-Threshold)
+
 
 ## df for IV
 df_IV <-  formatting_final_dfv2 %>% 
@@ -253,6 +278,15 @@ final_SOC <- final_SOC %>%
          "RCSCIWetBFLMag50" = "V.Result_CSCI_Wet_BFL_Mag_50"
          ) #%>% 
   # dplyr::select(-c(Column.Name, Lookup))
+
+new_order = c("site", "DDSDurWS", "DSPDur", "DDSMag50", "DPeak2", "DSPMag", "DWetBFLMag50", "DSPTim", 
+              "DFAMag", "DPeak10", "Threshold", "PASCIDSDurWS", "PASCISPDur", "PASCIDSMag50", "PASCIPeak2", 
+              "PASCISPMag", "PASCIWetBFLMag50", "PCSCIDSDurWS", "PCSCISPTim", "PCSCIDSMag50", "PCSCIFAMag", 
+              "PCSCIPeak10", "PCSCIWetBFLMag50", "RASCIDSDurWS", "RASCISPDur", "RASCIDSMag50", "RASCIPeak2", 
+              "RASCISPMag", "RASCIWetBFLMag50", "RCSCIDSDurWS", "RCSCISPTim", "RCSCIDSMag50", "RCSCIFAMag", 
+              "RCSCIPeak10", "RCSCIWetBFLMag50")
+
+final_SOC <-  final_SOC[, new_order]
 
 #read in information on subbasin and New_Name
 basin_comid_lookup <- read.csv("SOC_Data/v13_pourpoints_NHD_comids.csv") 

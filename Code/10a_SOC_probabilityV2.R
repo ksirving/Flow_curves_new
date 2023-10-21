@@ -76,8 +76,8 @@ unique(delta_long$FlowMetric)
 head(delta_long)
 sum(is.na(delta_long))
 
-RB9_metrics <- unique(delta_long$hydro.endpoints)
-RB9_metrics
+# RB9_metrics <- unique(delta_long$hydro.endpoints)
+# RB9_metrics
 
 
 # test <- delta_long %>%
@@ -479,7 +479,213 @@ for(i in 1: length(metrics)) {
     # pivot_wider(names_from = Scenario, values_from = DeltaH)
     rename(hydro =  DeltaH) %>%
     filter(Scenario == "Current",
+           !hydro >= 0) 
+
+  ##### if else to deal with no negatives
+  if(length(new_data_current_neg$hydro) < 1) {
+
+    posModCurrent <- predict(posMod, new_data_current_pos, type = "response")
+
+    new_data_current_pos <-  new_data_current_pos %>%
+      mutate(PredictedProbability = posModCurrent) %>%
+      mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+               (max(PredictedProbability)-min(PredictedProbability)))
+
+    CurrentProbsCSCI <- new_data_current_pos
+
+  } else if(length(new_data_current_pos$hydro) < 1) {
+
+    negModCurrent <- predict(negMod, new_data_current_neg, type = "response")
+
+    new_data_current_neg <-  new_data_current_neg %>%
+      mutate(PredictedProbability = negModCurrent) %>%
+      mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+               (max(PredictedProbability)-min(PredictedProbability)))
+
+    CurrentProbsCSCI <- new_data_current_neg
+
+  } else {
+
+    ## predict current conditions
+    posModCurrent <- predict(posMod, new_data_current_pos, type = "response")
+    negModCurrent <- predict(negMod, new_data_current_neg, type = "response")
+  #
+    #test
+    # test_df <- as.data.frame(c(375, 900, 100, 250))
+    # colnames(test_df) <- "hydro"
+    # posModCurrent <- predict(posMod, test_df, type = "response")
+    # #
+    # negModCurrent <- predict(negMod, test_df, type = "response")
+
+    # all_csci_test <- all_csci %>%
+    #   filter(Hydro_endpoint == met)
+    #
+    # posModCurrent <- predict(posMod, all_csci_test, type = "response")
+    # #
+    # negModCurrent <- predict(negMod, all_csci_July2023, type = "response")
+
+    ## add to dfs and scale
+    ## current
+    new_data_current_pos <-  new_data_current_pos %>%
+      mutate(PredictedProbability = posModCurrent) %>%
+      # mutate(PredictedProbability = round(PredictedProbability, digits = 2)) %>%
+      mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+               (max(PredictedProbability)-min(PredictedProbability)))# %>%
+    # mutate(CurrentDeltaNorm = (hydro-min(hydro))/
+    #          (max(hydro)-min(hydro)))
+
+
+    new_data_current_neg <-  new_data_current_neg %>%
+      mutate(PredictedProbability = negModCurrent) %>%
+      mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+               (max(PredictedProbability)-min(PredictedProbability)))# %>%
+    # mutate(CurrentDeltaNorm = (hydro-min(hydro))/
+    #          (max(hydro)-min(hydro)))
+
+    ## combine current
+    CurrentProbsCSCI <-  bind_rows(new_data_current_pos, new_data_current_neg)
+  }
+
+  ## combine current
+  CurrentProbsCSCI <- CurrentProbsCSCI %>%
+    transmute(site, hydro.endpoints, hydro, Scenario, FlowMetric, 
+              PredictedProbability, PredictedProbabilityScaled, index = "CSCI") # 
+
+  #final df 
+  
+  finalCSCI_df <- finalCSCI_df %>%
+    bind_rows(CurrentProbsCSCI)
+  
+}
+
+# removed for now 
+finalCSCI_df <- finalCSCI_df[-1,]
+
+## taking away + peak data - WILL HAVE TO EDIT METRIC NAME IF WE CHANGE METRICS
+## Rachel edited 9/28
+finalCSCI_df <- finalCSCI_df %>%
+  mutate(PredictedProbability = case_when(FlowMetric == "peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+                                          TRUE ~ as.numeric(PredictedProbability))) #%>%
+  # mutate(PredictedProbabilityScaled = case_when(FlowMetric == "peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+  #                                               TRUE ~ as.numeric(PredictedProbabilityScaled)))
+
+# make predicted probability scaled OUTSIDE loop 
+finalCSCI_df <- finalCSCI_df %>% 
+  mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+           (max(PredictedProbability)-min(PredictedProbability)))
+
+#### write to CSV
+write.csv(finalCSCI_df, file = "output_data/Manuscript/10a_SOC_CSCI_prob.csv")
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+### NEW SECTION FOR OLD CODE 
+# Separate loop for the timing and duration metrics  -----------------------------------------------------------------
+# using old data 
+# Tim, Dur
+# Use old GLMs and old bio_h_summary table from SOC repo
+
+# ASCI Probability --------------------------------------------------------
+
+# biol.endpoints<-c("H_ASCI", "D_ASCI")#
+# names(all_asci)
+# ## hydro
+# hydro.endpoints<- unique(all_asci$Hydro_endpoint)
+# hydro.endpoints
+## thresholds
+# 
+# thresholds <- c(0.86) ## hybrid and diatom are the same
+asci_metrics_tim_dur <- c("DS_Dur_WS", "SP_Dur") ## edited by Rachel 9/27 
+## add in loop with older data # DS_Dur_WS", "SP_Dur"
+
+#making bio_h_summary
+biol.endpoints<-c("H_ASCI","D_ASCI")#
+
+## hydro
+hydro.endpoints<- unique(all_asci$Hydro_endpoint)
+
+## thresholds
+
+thresholds <- c(0.75, 0.86, 0.94) ## hybrid and diatom are the same
+
+## make grid with all models 
+## use "output_data/01_csci_hydro_endpoints_order_July2023.csv" to make table for mag metrics
+# bio_h_summary <-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+bio_h_summary <- read.csv("output_data/01_asci_hydro_endpoints_order_April2021.csv") 
+
+bio_h_summary
+
+## reduce glms and summary df to only rows needed
+## find index to remove
+ind1 <- which(bio_h_summary$biol.endpoints == "H_ASCI" & bio_h_summary$thresholds == 0.86
+              & bio_h_summary$hydro.endpoints %in% asci_metrics_tim_dur) # where I selected for the specific metrics
+
+ind1 ## use only these 
+
+## remove from grid
+bio_h_summary <- bio_h_summary[ind1,]
+
+bio_h_summary <- bio_h_summary %>%
+  mutate(comb_code = paste0( hydro.endpoints, "_", thresholds))
+
+## upload GLMs and subset
+load(file = "models/01a_ASCI_negative_GLM_all_delta_mets_April2021.RData")
+neg.glm <- neg.glm[ind1]
+# neg.glm
+load(file = "models/01a_ASCI_positive_GLM_all_delta_mets_April2021.RData")
+pos.glm <- pos.glm[ind1]
+
+head(delta_long) ## new data to predict on
+dim(delta_long)
+## define metrics
+metrics <- unique(bio_h_summary$hydro.endpoints)
+
+metrics
+
+## making empty df and writing out column names 
+cols <- c("site", "hydro.endpoints", "hydro", "Scenario", "FlowMetric", 
+          "PredictedProbability", "PredictedProbabilityScaled", "index")
+finalASCI_df_tim_dur <- data.frame(matrix(nrow=1, ncol = length(cols)))
+colnames(finalASCI_df_tim_dur) <- cols
+
+# i=6
+## loop through metrics
+for(i in 1: length(metrics)) {
+  
+  met <- metrics[i]
+  
+  hydroxx <- delta_long %>%
+    filter(hydro.endpoints == met)
+  
+  unique(hydroxx$FlowMetric)
+  
+  ## get models for pos and neg
+  posMod <- pos.glm[i][[1]]
+  negMod <- neg.glm[i][[1]]
+  
+  ## rename to match models, separate scenarios and delta positive and negative
+  new_data_current_pos <- hydroxx %>%
+    # pivot_wider(names_from = Scenario, values_from = DeltaH)
+    rename(hydro = DeltaH) %>%
+    filter(Scenario == "Current",
+           !hydro < 0)
+  
+  new_data_current_neg <- hydroxx %>%
+    # pivot_wider(names_from = Scenario, values_from = DeltaH)
+    rename(hydro = DeltaH) %>%
+    filter(Scenario == "Current",
            !hydro >= 0)
+  
   
   ###### if else to deal with no negatives
   if(length(new_data_current_neg$hydro) < 1) {
@@ -491,7 +697,7 @@ for(i in 1: length(metrics)) {
       mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
                (max(PredictedProbability)-min(PredictedProbability)))
     
-    CurrentProbsCSCI <- new_data_current_pos
+    CurrentProbsASCI <- new_data_current_pos
     
   } else if(length(new_data_current_pos$hydro) < 1) {
     
@@ -502,7 +708,7 @@ for(i in 1: length(metrics)) {
       mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
                (max(PredictedProbability)-min(PredictedProbability)))
     
-    CurrentProbsCSCI <- new_data_current_neg
+    CurrentProbsASCI <- new_data_current_neg
     
   } else {
     
@@ -511,18 +717,18 @@ for(i in 1: length(metrics)) {
     negModCurrent <- predict(negMod, new_data_current_neg, type = "response")
     
     #test
-    # test_df <- as.data.frame(seq(1,100,5))     
+    # test_df <- as.data.frame(seq(1,100,5))
     # colnames(test_df) <- "hydro"
     # 
-    # posModCurrent <- predict(posMod, all_csci_July2023, type = "response")
-    # # 
-    # negModCurrent <- predict(negMod, all_csci_July2023, type = "response")
+    # posModCurrent <- predict(posMod, test_df, type = "response")
+    # 
+    # negModCurrent <- predict(negMod, test_df, type = "response")
+    
     
     ## add to dfs and scale
     ## current
     new_data_current_pos <-  new_data_current_pos %>%
       mutate(PredictedProbability = posModCurrent) %>%
-      # mutate(PredictedProbability = round(PredictedProbability, digits = 2)) %>%
       mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
                (max(PredictedProbability)-min(PredictedProbability)))# %>%
     # mutate(CurrentDeltaNorm = (hydro-min(hydro))/
@@ -537,45 +743,225 @@ for(i in 1: length(metrics)) {
     #          (max(hydro)-min(hydro)))  
     
     ## combine current
+    CurrentProbsASCI <-  bind_rows(new_data_current_pos, new_data_current_neg)
+  }
+  
+  CurrentProbsASCI <- CurrentProbsASCI %>%
+    transmute(site, hydro.endpoints, hydro, Scenario, FlowMetric, 
+              PredictedProbability, PredictedProbabilityScaled, index = "ASCI")
+  
+  finalASCI_df_tim_dur <- finalASCI_df_tim_dur  %>%
+    bind_rows(CurrentProbsASCI)
+  
+}
+
+finalASCI_df_tim_dur <- finalASCI_df_tim_dur[-1,]
+
+## taking away + peak data - WILL HAVE TO EDIT METRIC NAME IF WE CHANGE METRICS
+## Rachel edited 9/28
+# finalASCI_df_tim_dur <- finalASCI_df_tim_dur %>%
+#   mutate(PredictedProbability = case_when(FlowMetric == "peak_2" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+#                                           TRUE ~ as.numeric(PredictedProbability))) %>%
+#   mutate(PredictedProbabilityScaled = case_when(FlowMetric == "peak_2" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+#                                                 TRUE ~ as.numeric(PredictedProbabilityScaled)))
+
+## write out CSV
+write.csv(finalASCI_df_tim_dur, file = "output_data/Manuscript/10a_SOC_ASCI_prob_tim_dur.csv")
+
+# CSCI Probability --------------------------------------------------------
+
+
+## hydro
+hydro.endpoints<- unique(all_csci$Hydro_endpoint)
+hydro.endpoints
+## thresholds
+
+thresholds <- c(0.63, 0.79, 0.92) 
+biol.endpoints<-c("CSCI","OoverE","MMI")
+
+csci_metrics_tim_dur <- c("DS_Dur_WS", "SP_Tim" ) 
+#"DS_Dur_WS", "SP_Tim" 
+
+## make grid with all models 
+# bio_h_summary<-  expand.grid(biol.endpoints=biol.endpoints,hydro.endpoints=hydro.endpoints, thresholds = thresholds,  stringsAsFactors = F)
+bio_h_summary <- read.csv("output_data/01_csci_hydro_endpoints_order_Nov2020.csv") 
+
+bio_h_summary
+## reduce glms and summary df to only rows needed
+## find index to remove
+ind1 <- which(bio_h_summary$biol.endpoints == "CSCI" & bio_h_summary$thresholds == 0.79
+              & bio_h_summary$hydro.endpoints %in% csci_metrics_tim_dur) 
+
+ind1 ## use only these 
+
+## remove from grid
+bio_h_summary <- bio_h_summary[ind1,]
+
+bio_h_summary <- bio_h_summary %>%
+  mutate(comb_code = paste0(hydro.endpoints, "_", thresholds))
+
+## upload GLMs and subset
+load(file = "models/01_CSCI_negative_GLM_all_delta_mets_April2021.RData")
+neg.glm <- neg.glm[ind1]
+# neg.glm 
+load(file = "models/01_CSCI_positive_GLM_all_delta_mets_April2021.RData")
+pos.glm <- pos.glm[ind1]
+
+head(delta_long) ## new data to predict on
+
+length(pos.glm)
+## define metrics
+metrics <- unique(bio_h_summary$hydro.endpoints)
+
+metrics
+
+
+## making empty df and writing out column names 
+cols <- c("site", "hydro.endpoints", "hydro", "Scenario", "FlowMetric", 
+          "PredictedProbability", "PredictedProbabilityScaled", "index")
+finalCSCI_df_tim_dur <- data.frame(matrix(nrow=1, ncol = length(cols)))
+colnames(finalCSCI_df_tim_dur) <- cols
+
+# i=4
+## loop through metrics
+for(i in 1: length(metrics)) {
+  
+  met <- metrics[i]
+  
+  hydroxx <- delta_long %>%
+    filter(hydro.endpoints == met) %>% 
+    #testing 
+    mutate(DeltaH = case_when(DeltaH > 0 ~ DeltaH + 10,
+                              DeltaH < 0 ~ DeltaH + (-10), 
+                              T ~ as.numeric(DeltaH)))
+  
+  unique(hydroxx$FlowMetric)
+  
+  ## get models for pos and neg
+  posMod <- pos.glm[i][[1]]
+  negMod <- neg.glm[i][[1]]
+  
+  ## rename to match models, separate scenarios and delta positive and negative
+  new_data_current_pos <- hydroxx %>%
+    # pivot_wider(names_from = Scenario, values_from = DeltaH)
+    rename(hydro =  DeltaH) %>%
+    filter(Scenario == "Current",
+           !hydro < 0) 
+  
+  new_data_current_neg <- hydroxx %>%
+    # pivot_wider(names_from = Scenario, values_from = DeltaH)
+    rename(hydro =  DeltaH) %>%
+    filter(Scenario == "Current",
+           !hydro >= 0) 
+  
+  ##### if else to deal with no negatives
+  if(length(new_data_current_neg$hydro) < 1) {
+
+    posModCurrent <- predict(posMod, new_data_current_pos, type = "response")
+
+    new_data_current_pos <-  new_data_current_pos %>%
+      mutate(PredictedProbability = posModCurrent) %>%
+      mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+               (max(PredictedProbability)-min(PredictedProbability)))
+
+    CurrentProbsCSCI <- new_data_current_pos
+
+  } else if(length(new_data_current_pos$hydro) < 1) {
+
+    negModCurrent <- predict(negMod, new_data_current_neg, type = "response")
+
+    new_data_current_neg <-  new_data_current_neg %>%
+      mutate(PredictedProbability = negModCurrent) %>%
+      mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+               (max(PredictedProbability)-min(PredictedProbability)))
+
+    CurrentProbsCSCI <- new_data_current_neg
+
+  } else {
+
+  # predict current conditions
+  posModCurrent <- predict(posMod, new_data_current_pos, type = "response")
+  negModCurrent <- predict(negMod, new_data_current_neg, type = "response")
+  #   
+    #test
+    # test_df <- as.data.frame(c(375, 900, 100, 250))
+    # colnames(test_df) <- "hydro"
+    # posModCurrent <- predict(posMod, test_df, type = "response")
+    # #
+    # negModCurrent <- predict(negMod, test_df, type = "response")
+
+    # all_csci_test <- all_csci %>%
+    #   filter(Hydro_endpoint == met)
+    #
+    # posModCurrent <- predict(posMod, all_csci_test, type = "response")
+    # #
+    # negModCurrent <- predict(negMod, all_csci_July2023, type = "response")
+
+    ## add to dfs and scale
+    ## current
+    new_data_current_pos <-  new_data_current_pos %>%
+      mutate(PredictedProbability = posModCurrent) %>%
+      # mutate(PredictedProbability = round(PredictedProbability, digits = 2)) %>%
+      mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+               (max(PredictedProbability)-min(PredictedProbability)))# %>%
+    # mutate(CurrentDeltaNorm = (hydro-min(hydro))/
+    #          (max(hydro)-min(hydro)))
+
+
+    new_data_current_neg <-  new_data_current_neg %>%
+      mutate(PredictedProbability = negModCurrent) %>%
+      mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+               (max(PredictedProbability)-min(PredictedProbability)))# %>%
+    # mutate(CurrentDeltaNorm = (hydro-min(hydro))/
+    #          (max(hydro)-min(hydro)))
+
+    ## combine current
     CurrentProbsCSCI <-  bind_rows(new_data_current_pos, new_data_current_neg)
   }
-  ## combine current
   
+  ## combine current
   CurrentProbsCSCI <- CurrentProbsCSCI %>%
     transmute(site, hydro.endpoints, hydro, Scenario, FlowMetric, 
-              PredictedProbability, PredictedProbabilityScaled, index = "CSCI")
-
+              PredictedProbability, PredictedProbabilityScaled, index = "CSCI") # 
+  
   #final df 
   
-  finalCSCI_df <- finalCSCI_df %>%
+  finalCSCI_df_tim_dur <- finalCSCI_df_tim_dur %>%
     bind_rows(CurrentProbsCSCI)
   
   
 }
 
-finalCSCI_df <- finalCSCI_df[-1,]
+# 
+finalCSCI_df_tim_dur <- finalCSCI_df_tim_dur[-1,]
 
 ## taking away + peak data - WILL HAVE TO EDIT METRIC NAME IF WE CHANGE METRICS
 ## Rachel edited 9/28
-finalCSCI_df <- finalCSCI_df %>%
-  mutate(PredictedProbability = case_when(FlowMetric == "peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
-                                          TRUE ~ as.numeric(PredictedProbability))) %>%
-  mutate(PredictedProbabilityScaled = case_when(FlowMetric == "peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
-                                                TRUE ~ as.numeric(PredictedProbabilityScaled)))
+# finalCSCI_df_tim_dur <- finalCSCI_df_tim_dur %>%
+#   mutate(PredictedProbability = case_when(FlowMetric == "peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+#                                           TRUE ~ as.numeric(PredictedProbability))) #%>%
+# mutate(PredictedProbabilityScaled = case_when(FlowMetric == "peak_10" & hydro > 0 ~ NA_real_, ### edited 9/12 to remove + peak values
+#                                               TRUE ~ as.numeric(PredictedProbabilityScaled)))
+
+# make predicted probability scaled OUTSIDE loop 
+finalCSCI_df_tim_dur <- finalCSCI_df_tim_dur %>% 
+  mutate(PredictedProbabilityScaled = (PredictedProbability-min(PredictedProbability))/
+           (max(PredictedProbability)-min(PredictedProbability)))
 
 #### write to CSV
-write.csv(finalCSCI_df, file = "output_data/Manuscript/10a_SOC_CSCI_prob.csv")
-
-# Tim, Dur
-# Use old GLMs and old bio_h_summary table from SOC repo
+write.csv(finalCSCI_df_tim_dur, file = "output_data/Manuscript/10a_SOC_CSCI_prob_tim_dur.csv")
 
 #################################################################
 # Combine CSCi and ASCI into one df 
 ASCI <- read.csv("output_data/Manuscript/10a_SOC_ASCI_prob.csv")
 CSCI <- read.csv("output_data/Manuscript/10a_SOC_CSCI_prob.csv")
+ASCI_tim_dur <- read.csv("output_data/Manuscript/10a_SOC_ASCI_prob_tim_dur.csv")
+CSCI_tim_dur <- read.csv("output_data/Manuscript/10a_SOC_CSCI_prob_tim_dur.csv")
 
 comb <- ASCI %>% 
   bind_rows(CSCI) %>% 
+  bind_rows(ASCI_tim_dur) %>% 
+  bind_rows(CSCI_tim_dur) %>% 
   dplyr::select(-c(X))
 
 write.csv(comb, file = "output_data/Manuscript/10a_SOC_predicted_probability_ASCIandCSCI.csv", row.names = FALSE)

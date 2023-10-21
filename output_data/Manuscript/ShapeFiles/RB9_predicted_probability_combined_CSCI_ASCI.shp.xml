@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xml:lang="en"><Esri><CreaDate>20231016</CreaDate><CreaTime>15260500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\toolboxes\Data Management Tools.tbx\CalculateField" Date="20231016" Time="152605">CalculateField RB9_predicted_probability_combined_CSCI_ASCI PrdctPS1 !PrdctPS! "Python 3" # "Double (64-bit floating point)" NO_ENFORCE_DOMAINS</Process></lineage></DataProperties></Esri></metadata>
