@@ -456,11 +456,11 @@ for(i in 1: length(metrics)) {
   met <- metrics[i]
   
   hydroxx <- delta_long %>%
-    filter(hydro.endpoints == met) %>% 
+    filter(hydro.endpoints == met) #%>% 
     #testing 
-    mutate(DeltaH = case_when(DeltaH > 0 ~ DeltaH + 10,
-                              DeltaH < 0 ~ DeltaH + (-10), 
-                              T ~ as.numeric(DeltaH)))
+    # mutate(DeltaH = case_when(DeltaH > 0 ~ DeltaH + 10,
+    #                           DeltaH < 0 ~ DeltaH + (-10), 
+    #                           T ~ as.numeric(DeltaH)))
   
   unique(hydroxx$FlowMetric)
   
@@ -829,11 +829,11 @@ for(i in 1: length(metrics)) {
   met <- metrics[i]
   
   hydroxx <- delta_long %>%
-    filter(hydro.endpoints == met) %>% 
+    filter(hydro.endpoints == met) #%>% 
     #testing 
-    mutate(DeltaH = case_when(DeltaH > 0 ~ DeltaH + 10,
-                              DeltaH < 0 ~ DeltaH + (-10), 
-                              T ~ as.numeric(DeltaH)))
+    # mutate(DeltaH = case_when(DeltaH > 0 ~ DeltaH + 10,
+    #                           DeltaH < 0 ~ DeltaH + (-10), 
+    #                           T ~ as.numeric(DeltaH)))
   
   unique(hydroxx$FlowMetric)
   

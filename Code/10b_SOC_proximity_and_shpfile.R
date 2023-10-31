@@ -24,8 +24,8 @@ library(rgdal)
 lookup_table <- read_csv("output_data/Manuscript/10_SOC_ALL_delta_thresholds_scaled.csv")
 
 ### reading in delta long from script 10a for df_II
-delta_long_SOC_data <- read.csv("ignore/10a_SOC_delta_h_long.csv") %>% 
-  dplyr::select(-c(X, FlowMetric)) 
+# delta_long_SOC_data <- read.csv("ignore/10a_SOC_delta_h_long.csv") %>% 
+#   dplyr::select(-c(X, FlowMetric)) 
 
 ### read in current predicted probabilities 
 #### Edited 10/20
@@ -152,10 +152,10 @@ formatting_final_dfv2 <- final_dfv2 %>%
 # write.csv(formatting_final_dfv2, "C:/Users/racheld/Downloads/SOC_prox_threshold.csv", row.names = FALSE)
 
 ## df for II
-df_II <- delta_long_SOC_data %>% 
-  dplyr:: select(c(site, DeltaH, hydro.endpoints)) %>%  #, index
+df_II <- formatting_final_dfv2 %>% 
+  dplyr:: select(c(site, hydro, Hydro_endpoint)) %>%  #, index
   distinct() %>% 
-  pivot_wider(names_from = hydro.endpoints, values_from = DeltaH, names_prefix = "II.DeltaFFM_") 
+  pivot_wider(names_from = Hydro_endpoint, values_from = hydro, names_prefix = "II.DeltaFFM_") 
 
 # df for III
 df_III <- formatting_final_dfv2 %>% 
@@ -225,7 +225,44 @@ combined_dfs_shp <- df_II %>%
   mutate(V.Result_ASCI_Peak_2 = if_else(V.Result_ASCI_Peak_2 == "A probability of NA indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", 
                                          "A probability of <Null> indicates augmented peak metric.  Not enough data for flow ecology curve peak augmentation.", as.character(V.Result_ASCI_Peak_2)))
   
+# order the columns for the csv (to match the shp file below)
+new_order = c("I.Site", 
+              "II.DeltaFFM_DS_Dur_WS", 
+              "II.DeltaFFM_DS_Mag_50", 
+              "II.DeltaFFM_FA_Mag",
+              "II.DeltaFFM_Peak_10", 
+              "II.DeltaFFM_Peak_2",
+              "II.DeltaFFM_SP_Dur",
+              "II.DeltaFFM_SP_Mag", 
+              "II.DeltaFFM_SP_Tim", 
+              "II.DeltaFFM_Wet_BFL_Mag_50", 
+              "III.Threshold", 
+              "IV.Prob_ASCI_DS_Dur_WS", 
+              "IV.Prob_ASCI_DS_Mag_50",
+              "IV.Prob_ASCI_Peak_2",
+              "IV.Prob_ASCI_SP_Dur", 
+              "IV.Prob_ASCI_SP_Mag", 
+              "IV.Prob_ASCI_Wet_BFL_Mag_50",
+              "IV.Prob_CSCI_DS_Dur_WS", 
+              "IV.Prob_CSCI_DS_Mag_50", 
+              "IV.Prob_CSCI_FA_Mag",
+              "IV.Prob_CSCI_Peak_10", 
+              "IV.Prob_CSCI_SP_Tim", 
+              "IV.Prob_CSCI_Wet_BFL_Mag_50",
+              "V.Result_ASCI_DS_Dur_WS", 
+              "V.Result_ASCI_DS_Mag_50", 
+              "V.Result_ASCI_Peak_2",
+              "V.Result_ASCI_SP_Dur", 
+              "V.Result_ASCI_SP_Mag", 
+              "V.Result_ASCI_Wet_BFL_Mag_50", 
+              "V.Result_CSCI_DS_Dur_WS", 
+              "V.Result_CSCI_DS_Mag_50", 
+              "V.Result_CSCI_FA_Mag",
+              "V.Result_CSCI_Peak_10",
+              "V.Result_CSCI_SP_Tim", 
+              "V.Result_CSCI_Wet_BFL_Mag_50")
 
+combined_dfs <-  combined_dfs[, new_order]
 
 # write.csv(combined_dfs, "C:/Users/racheld/Downloads/SOC_prox_threshold_test.csv", row.names = FALSE)
 write.csv(combined_dfs, "output_data/Manuscript/SOC_RiskFramework_Data_Final.csv", row.names = FALSE)
@@ -243,48 +280,48 @@ final_SOC <- read.csv("output_data/Manuscript/SOC_RiskFramework_Data_Final_forsh
 final_SOC <- final_SOC %>%
   rename("site" = "I.Site", 
          "DDSDurWS" = "II.DeltaFFM_DS_Dur_WS", 
-         "DSPDur" = "II.DeltaFFM_SP_Dur", 
-         "DDSMag50" = "II.DeltaFFM_DS_Mag_50", 
-         "DPeak2" = "II.DeltaFFM_Peak_2", 
-         "DSPMag" =  "II.DeltaFFM_SP_Mag",
-         "DWetBFLMag50" = "II.DeltaFFM_Wet_BFL_Mag_50", 
-         "DSPTim" = "II.DeltaFFM_SP_Tim", 
+         "DDSMag50" = "II.DeltaFFM_DS_Mag_50",
          "DFAMag" = "II.DeltaFFM_FA_Mag",
          "DPeak10" = "II.DeltaFFM_Peak_10", 
+         "DPeak2" = "II.DeltaFFM_Peak_2",
+         "DSPDur" = "II.DeltaFFM_SP_Dur",
+         "DSPMag" =  "II.DeltaFFM_SP_Mag",
+         "DSPTim" = "II.DeltaFFM_SP_Tim",
+         "DWetBFLMag50" = "II.DeltaFFM_Wet_BFL_Mag_50", 
          "Threshold" = "III.Threshold", 
          "PASCIDSDurWS" = "IV.Prob_ASCI_DS_Dur_WS", 
-         "PASCISPDur" = "IV.Prob_ASCI_SP_Dur", 
-         "PASCIDSMag50" = "IV.Prob_ASCI_DS_Mag_50", 
+         "PASCIDSMag50" = "IV.Prob_ASCI_DS_Mag_50",
          "PASCIPeak2" = "IV.Prob_ASCI_Peak_2", 
+         "PASCISPDur" = "IV.Prob_ASCI_SP_Dur", 
          "PASCISPMag" = "IV.Prob_ASCI_SP_Mag",
          "PASCIWetBFLMag50" = "IV.Prob_ASCI_Wet_BFL_Mag_50", 
          "PCSCIDSDurWS" = "IV.Prob_CSCI_DS_Dur_WS", 
-         "PCSCISPTim" = "IV.Prob_CSCI_SP_Tim", 
          "PCSCIDSMag50" = "IV.Prob_CSCI_DS_Mag_50",
          "PCSCIFAMag" = "IV.Prob_CSCI_FA_Mag", 
-         "PCSCIPeak10" = "IV.Prob_CSCI_Peak_10", 
+         "PCSCIPeak10" = "IV.Prob_CSCI_Peak_10",
+         "PCSCISPTim" = "IV.Prob_CSCI_SP_Tim", 
          "PCSCIWetBFLMag50" = "IV.Prob_CSCI_Wet_BFL_Mag_50", 
          "RASCIDSDurWS" = "V.Result_ASCI_DS_Dur_WS", 
-         "RASCISPDur" = "V.Result_ASCI_SP_Dur", 
          "RASCIDSMag50" = "V.Result_ASCI_DS_Mag_50", 
-         "RASCIPeak2" = "V.Result_ASCI_Peak_2", 
+         "RASCIPeak2" = "V.Result_ASCI_Peak_2",
+         "RASCISPDur" = "V.Result_ASCI_SP_Dur", 
          "RASCISPMag" = "V.Result_ASCI_SP_Mag", 
          "RASCIWetBFLMag50" = "V.Result_ASCI_Wet_BFL_Mag_50", 
          "RCSCIDSDurWS" = "V.Result_CSCI_DS_Dur_WS", 
-         "RCSCISPTim" = "V.Result_CSCI_SP_Tim", 
-         "RCSCIDSMag50" = "V.Result_CSCI_DS_Mag_50", 
-         "RCSCIFAMag" = "V.Result_CSCI_FA_Mag", 
+         "RCSCIDSMag50" = "V.Result_CSCI_DS_Mag_50",
+         "RCSCIFAMag" = "V.Result_CSCI_FA_Mag",
          "RCSCIPeak10" = "V.Result_CSCI_Peak_10", 
+         "RCSCISPTim" = "V.Result_CSCI_SP_Tim", 
          "RCSCIWetBFLMag50" = "V.Result_CSCI_Wet_BFL_Mag_50"
          ) #%>% 
   # dplyr::select(-c(Column.Name, Lookup))
 
-new_order = c("site", "DDSDurWS", "DSPDur", "DDSMag50", "DPeak2", "DSPMag", "DWetBFLMag50", "DSPTim", 
-              "DFAMag", "DPeak10", "Threshold", "PASCIDSDurWS", "PASCISPDur", "PASCIDSMag50", "PASCIPeak2", 
-              "PASCISPMag", "PASCIWetBFLMag50", "PCSCIDSDurWS", "PCSCISPTim", "PCSCIDSMag50", "PCSCIFAMag", 
-              "PCSCIPeak10", "PCSCIWetBFLMag50", "RASCIDSDurWS", "RASCISPDur", "RASCIDSMag50", "RASCIPeak2", 
-              "RASCISPMag", "RASCIWetBFLMag50", "RCSCIDSDurWS", "RCSCISPTim", "RCSCIDSMag50", "RCSCIFAMag", 
-              "RCSCIPeak10", "RCSCIWetBFLMag50")
+new_order = c("site", "DDSDurWS", "DDSMag50", "DFAMag", "DPeak10", "DPeak2", "DSPDur", "DSPMag", 
+              "DSPTim", "DWetBFLMag50", "Threshold", "PASCIDSDurWS", "PASCIDSMag50", "PASCIPeak2", "PASCISPDur", 
+              "PASCISPMag", "PASCIWetBFLMag50", "PCSCIDSDurWS", "PCSCIDSMag50", "PCSCIFAMag", "PCSCIPeak10", 
+              "PCSCISPTim", "PCSCIWetBFLMag50", "RASCIDSDurWS", "RASCIDSMag50", "RASCIPeak2", "RASCISPDur", 
+              "RASCISPMag", "RASCIWetBFLMag50", "RCSCIDSDurWS", "RCSCIDSMag50", "RCSCIFAMag", "RCSCIPeak10", 
+              "RCSCISPTim", "RCSCIWetBFLMag50")
 
 final_SOC <-  final_SOC[, new_order]
 
